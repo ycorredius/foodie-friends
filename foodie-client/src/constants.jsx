@@ -1,1 +1,0 @@
-export const defaultImage ="https://img.freepik.com/free-photo/chicken-wings-barbecue-sweetly-sour-sauce-picnic-summer-menu-tasty-food-top-view-flat-lay_2829-6471.jpg?w=1380&t=st=1694636422~exp=1694637022~hmac=a607a20548ccdec39ed4f84bbce09cd1149702c93f0f3f17d49609a93dbfa76a"
