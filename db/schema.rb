@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_01_210003) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_01_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -77,6 +77,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_210003) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_ingredients_on_name", unique: true
+  end
+
+  create_table "plan_template_meals", force: :cascade do |t|
+    t.bigint "plan_template_id", null: false
+    t.bigint "recipe_id", null: false
+    t.integer "wday", null: false
+    t.integer "meal_slot", null: false
+    t.integer "servings", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["plan_template_id", "wday", "meal_slot", "recipe_id"], name: "index_plan_template_meals_once_per_slot", unique: true
+    t.index ["plan_template_id"], name: "index_plan_template_meals_on_plan_template_id"
+    t.index ["recipe_id"], name: "index_plan_template_meals_on_recipe_id"
+  end
+
+  create_table "plan_templates", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "name"], name: "index_plan_templates_on_household_id_and_name", unique: true
+    t.index ["household_id"], name: "index_plan_templates_on_household_id"
   end
 
   create_table "planned_meals", force: :cascade do |t|
@@ -346,6 +368,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_210003) do
   add_foreign_key "follows", "users", column: "follower_id"
   add_foreign_key "household_memberships", "households"
   add_foreign_key "household_memberships", "users"
+  add_foreign_key "plan_template_meals", "plan_templates"
+  add_foreign_key "plan_template_meals", "recipes", on_delete: :cascade
+  add_foreign_key "plan_templates", "households"
   add_foreign_key "planned_meals", "households"
   add_foreign_key "planned_meals", "recipes", on_delete: :cascade
   add_foreign_key "recipe_ingredients", "ingredients"

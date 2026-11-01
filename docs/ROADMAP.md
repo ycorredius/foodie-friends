@@ -59,7 +59,8 @@ Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-da
 - [x] Household of one created at sign-up; household name and size
 - [x] Weekly planner: days × breakfast/lunch/dinner/snack, several recipes per slot; servings default to the household size; week start is a user setting (Sunday or Monday)
 - [x] Copy last week's (or any week's) plan, refusing to overwrite unless asked
-- [ ] Reusable plan templates
+- [x] Save a week as a reusable plan template; list, view and delete templates
+- [ ] Apply a template to a week (plan a whole week in one request)
 
 ### Phase 4: Grocery lists
 
