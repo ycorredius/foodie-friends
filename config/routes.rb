@@ -14,12 +14,13 @@ Rails.application.routes.draw do
         end
         resources :followers, only: :destroy
       end
-      resources :users, only: :show do
+      resources :users, only: %i[index show] do
         resource :follow, only: %i[create destroy]
         resources :followers, only: :index
         resources :following, only: :index
       end
       resources :recipes, except: %i[new edit]
+      resource :feed, only: :show
       resources :direct_uploads, only: :create
     end
   end

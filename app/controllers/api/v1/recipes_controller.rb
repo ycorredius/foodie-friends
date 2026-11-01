@@ -7,11 +7,13 @@ class Api::V1::RecipesController < Api::V1::BaseController
     render json: {errors: {photo: ["is invalid"]}}, status: :unprocessable_entity
   end
 
-  # Recipes visible to the current user, newest first. Filter to one author with `user_id`.
+  # Explore: recipes visible to the current user, newest first, with optional
+  # search and filters (see RecipeSearch).
   def index
-    scope = Recipe.visible_to(Current.user).includes(:user).with_attached_photo
-    scope = scope.where(user_id: params[:user_id]) if params[:user_id].present?
-    @recipes = paginate(scope)
+    search = RecipeSearch.new(params)
+    return render json: {errors: search.errors}, status: :unprocessable_entity unless search.valid?
+
+    @recipes = paginate(search.apply(Recipe.visible_to(Current.user)).includes(:user).with_attached_photo)
   end
 
   # Pass `servings` to scale ingredient quantities.
@@ -55,7 +57,7 @@ class Api::V1::RecipesController < Api::V1::BaseController
   def recipe_params
     attributes = params.expect(recipe: [
       :title, :description, :servings, :prep_minutes, :cook_minutes, :meal_type, :difficulty, :visibility, :photo,
-      steps: [], ingredients: [[:name, :quantity, :unit, :note]]
+      steps: [], tags: [], ingredients: [[:name, :quantity, :unit, :note]]
     ])
     attributes[:ingredient_lines] = attributes.delete(:ingredients) if attributes.key?(:ingredients)
     attributes[:photo] = attributes[:photo].presence && uploaded_photo(attributes[:photo]) if attributes.key?(:photo)
