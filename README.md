@@ -38,7 +38,7 @@ List endpoints return newest first unless noted, 20 items by default. Pass `limi
 | `POST` | `/api/v1/session` | — | Sign in. Body: `{email_address, password}`. Returns `{token, reactivated, user}`; `reactivated` is true when signing in restored a deactivated account. Rate limited. |
 | `DELETE` | `/api/v1/session` | ✓ | Sign out (revokes the token used). |
 | `GET` | `/api/v1/me` | ✓ | The current user. |
-| `PATCH` | `/api/v1/me` | ✓ | Update `{user: {first_name, last_name, unit_system, private_profile}}`. `unit_system` is `us_customary` (default) or `metric`. Making a profile public approves pending follow requests. |
+| `PATCH` | `/api/v1/me` | ✓ | Update `{user: {first_name, last_name, unit_system, private_profile, week_start_day}}`. `unit_system` is `us_customary` (default) or `metric`. Making a profile public approves pending follow requests. `week_start_day` (`sunday` default, or `monday`) sets where planner weeks begin. |
 | `DELETE` | `/api/v1/me` | ✓ | Delete your account. Body: `{password}`. Deactivates it and signs out everywhere; returns `{deletes_at}`. Signing in before then reactivates it; after 30 days it's deleted permanently. Rate limited. |
 | `GET` | `/api/v1/recipes` | ✓ | Explore: recipes visible to you, with optional search and filters (below). Returns `{recipes, next_page}`. |
 | `POST` | `/api/v1/recipes/:id/save` | ✓ | Save a recipe you can see. Returns `{saved, saves_count}`. |
@@ -59,6 +59,13 @@ List endpoints return newest first unless noted, 20 items by default. Pass `limi
 | `POST` | `/api/v1/me/follow_requests/:user_id/approve` | ✓ | Approve a request. |
 | `DELETE` | `/api/v1/me/follow_requests/:user_id` | ✓ | Decline a request. |
 | `DELETE` | `/api/v1/me/followers/:user_id` | ✓ | Remove a follower. |
+| `GET` | `/api/v1/household` | ✓ | Your household: `{id, name, size, members}`. `size` is how many people you're feeding. |
+| `PATCH` | `/api/v1/household` | ✓ | Update `{household: {name, size}}` (size 1–20). |
+| `GET` | `/api/v1/meal_plans/:date` | ✓ | The planner week containing `:date` (`YYYY-MM-DD`): `{week_start, week_end, planned_meals}`. |
+| `POST` | `/api/v1/meal_plans/:date/copy` | ✓ | Copy another week's meals into this week, on the same weekdays. Optional `from` (a date in the source week; default the previous week) and `replace`. Returns `409` if this week already has meals, unless `replace: true`. Recipes you can no longer see aren't copied. |
+| `POST` | `/api/v1/planned_meals` | ✓ | Plan a meal: `{planned_meal: {recipe_id, date, meal_slot, servings}}`. `meal_slot` is breakfast, lunch, dinner or snack; `servings` defaults to the household size. A slot can hold several recipes. Each recipe can be planned once per date and slot; adding it again returns the existing meal (`200`). |
+| `PATCH` | `/api/v1/planned_meals/:id` | ✓ | Move or resize: `{planned_meal: {date, meal_slot, servings, lock_version}}`. `lock_version` is required: send the value from the meal you last loaded. If the meal changed since, returns `409` with `{error, planned_meal}` showing its current state. |
+| `DELETE` | `/api/v1/planned_meals/:id` | ✓ | Remove a planned meal. |
 | `POST` | `/api/v1/direct_uploads` | ✓ | Start a photo upload. Body: `{blob: {filename, byte_size, checksum, content_type}}`. Returns `{signed_id, direct_upload: {url, headers}}`. Rate limited. |
 
 ### Recipes
@@ -91,6 +98,10 @@ List endpoints return newest first unless noted, 20 items by default. Pass `limi
 - `unit`: g, kg, oz, lb, ml, l, tsp, tbsp, fl_oz, cup, pint, quart, gallon, or a count unit (each, clove, slice, can, package, bunch, sprig, stick, pinch, dash). Quantity and unit may both be omitted.
 - Responses convert weights and volumes to the reader's `unit_system` and scale to the requested `servings`; each ingredient's `original` holds the amount as written. Count units are scaled but never converted.
 - Validation errors return `422` with `{errors: {field: [messages]}}`; ingredient errors are keyed by position, e.g. `ingredients[1].unit`.
+
+### Meal planning
+
+Each planned meal is `{id, date, meal_slot, servings, lock_version, unavailable, recipe}`. If a planned recipe becomes hidden from you, the meal stays in your plan with `recipe: null` and `unavailable: true`; if the recipe is deleted, the meal is removed.
 
 ### Photos
 

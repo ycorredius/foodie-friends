@@ -10,7 +10,7 @@ RSpec.describe "API me", type: :request do
       expect(response.parsed_body).to eq(
         "id" => user.id, "email_address" => user.email_address,
         "first_name" => user.first_name, "last_name" => user.last_name, "unit_system" => "us_customary",
-        "private_profile" => false
+        "private_profile" => false, "week_start_day" => "sunday"
       )
     end
   end
