@@ -1,5 +1,4 @@
-class Api::V1::MeController < Api::BaseController
+class Api::V1::MeController < Api::V1::BaseController
   def show
-    render json: UserSerializer.new(@user).serializable_hash.to_json
   end
 end

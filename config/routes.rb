@@ -1,18 +1,25 @@
 Rails.application.routes.draw do
-  draw :api
+  resource :session
+  resources :passwords, param: :token
+  resource :registration, only: %i[new create]
 
-  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
+  namespace :api, defaults: {format: :json} do
+    namespace :v1 do
+      resource :session, only: %i[create destroy]
+      resource :registration, only: :create
+      resource :me, controller: :me, only: :show
+    end
+  end
+  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  devise_for :users
-  resources :users, only: [:index, :show]
-  namespace :user do
-    resources :friends, only: [:index, :destroy]
-    resources :recipes, only: [:index]
-    resources :invitations
-  end
-  resources :favorites, only: %i[create destroy]
-  resources :recipes, except: [:index] do
-    resources :comments, only: [:show, :update, :destroy, :create]
-  end
-  root to: "recipes#index"
+  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
+  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  get "up" => "rails/health#show", :as => :rails_health_check
+
+  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
+  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+
+  # Defines the root path route ("/")
+  root "home#show"
 end

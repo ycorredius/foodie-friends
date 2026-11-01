@@ -1,20 +1,9 @@
 class ApplicationController < ActionController::Base
-  include Pagy::Backend
-  before_action :configure_permitted_parameters, if: :devise_controller?
+  include Authentication
 
-  protected
+  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
+  allow_browser versions: :modern
 
-  def after_sign_in_path_for(resource)
-    stored_location_for(resource)
-  end
-
-  def after_sign_out_path_for(resource)
-    new_user_session_path
-  end
-
-  def configure_permitted_parameters
-    signup_keys = [:first_name, :last_name, :email, :password, :password_confirmation, :avatar]
-    devise_parameter_sanitizer.permit(:sign_up, keys: signup_keys)
-    devise_parameter_sanitizer.permit(:account_update, keys: signup_keys)
-  end
+  # Changes to the importmap will invalidate the etag for HTML responses
+  stale_when_importmap_changes
 end

@@ -7,13 +7,18 @@ services:
     runtime: ruby
     plan: free
     buildCommand: "./bin/render-build.sh"
-    startCommand: "bundle exec rails server"
+    startCommand: "bundle exec puma -C config/puma.rb"
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: foodie-friends
+          name: foodiefriends
           property: connectionString
       - key: RAILS_MASTER_KEY
         sync: false
+      - key: APP_HOST
+        sync: false
       - key: WEB_CONCURRENCY
         value: 2
+      # Run Solid Queue's supervisor inside Puma; the free plan has no worker service.
+      - key: SOLID_QUEUE_IN_PUMA
+        value: true
