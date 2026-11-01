@@ -16,3 +16,6 @@ production:
   purge_deactivated_users:
     class: PurgeDeactivatedUsersJob
     schedule: every day at 4am
+  purge_unattached_uploads:
+    class: PurgeUnattachedUploadsJob
+    schedule: every day at 4:30am

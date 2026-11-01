@@ -40,7 +40,7 @@ Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-da
 - [x] Public / only-me visibility ([#32](https://github.com/ycorredius/foodie-friends/pull/32))
 - [x] Seed recipes and ingredient categories ([#34](https://github.com/ycorredius/foodie-friends/pull/34))
 - [x] Account deletion: deactivate, reactivate on sign-in, permanently delete after 30 days ([#35](https://github.com/ycorredius/foodie-friends/pull/35))
-- [ ] Recipe photos via Active Storage direct uploads, stored on local disk for now
+- [x] Recipe photos via Active Storage direct uploads, stored on local disk for now
 
 ### Phase 2: Social and discovery
 

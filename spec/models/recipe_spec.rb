@@ -22,6 +22,20 @@ RSpec.describe Recipe, type: :model do
     it "allows meal type and difficulty to be blank" do
       expect(build(:recipe, meal_type: nil, difficulty: nil)).to be_valid
     end
+
+    it "accepts JPEG, PNG and WebP photos" do
+      recipe = build(:recipe)
+      recipe.photo.attach(io: file_fixture("photo.png").open, filename: "photo.png", content_type: "image/png")
+      expect(recipe).to be_valid
+    end
+
+    it "rejects other file types and photos over 10 MB" do
+      recipe = build(:recipe)
+      recipe.photo.attach(io: StringIO.new("not an image"), filename: "notes.txt", content_type: "text/plain")
+      recipe.photo.blob.byte_size = Recipe::PHOTO_MAX_BYTES + 1
+      expect(recipe).not_to be_valid
+      expect(recipe.errors[:photo]).to contain_exactly("must be a JPEG, PNG or WebP image", "must be 10 MB or smaller")
+    end
   end
 
   describe ".visible_to" do

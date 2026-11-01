@@ -43,6 +43,7 @@ All endpoints are under `/api/v1` and speak JSON. Authenticated endpoints take `
 | `POST` | `/api/v1/recipes` | ✓ | Create. Body below. |
 | `PATCH` | `/api/v1/recipes/:id` | ✓ | Update your recipe. Sending `ingredients` replaces all ingredient lines. |
 | `DELETE` | `/api/v1/recipes/:id` | ✓ | Delete your recipe. |
+| `POST` | `/api/v1/direct_uploads` | ✓ | Start a photo upload. Body: `{blob: {filename, byte_size, checksum, content_type}}`. Returns `{signed_id, direct_upload: {url, headers}}`. Rate limited. |
 
 ### Recipes
 
@@ -63,6 +64,16 @@ All endpoints are under `/api/v1` and speak JSON. Authenticated endpoints take `
 - `unit`: g, kg, oz, lb, ml, l, tsp, tbsp, fl_oz, cup, pint, quart, gallon, or a count unit (each, clove, slice, can, package, bunch, sprig, stick, pinch, dash). Quantity and unit may both be omitted.
 - Responses convert weights and volumes to the reader's `unit_system` and scale to the requested `servings`; each ingredient's `original` holds the amount as written. Count units are scaled but never converted.
 - Validation errors return `422` with `{errors: {field: [messages]}}`; ingredient errors are keyed by position, e.g. `ingredients[1].unit`.
+
+### Photos
+
+Photos are JPEG, PNG or WebP, up to 10 MB. Attaching one takes three steps:
+
+1. `POST /api/v1/direct_uploads` with the file's name, size in bytes, base64-encoded MD5 `checksum`, and content type.
+2. `PUT` the raw file bytes to the returned `direct_upload.url`, sending `direct_upload.headers`.
+3. Send the returned `signed_id` as `recipe.photo` when creating or updating a recipe. Send `"photo": null` to remove the photo.
+
+You can only attach photos you uploaded yourself, and each upload can be attached to one recipe. Uploads that are never attached are deleted after a day. Recipe responses include `photo: {thumbnail_url, url}` (400px and 1200px versions), or `null`.
 
 ## Deployment
 

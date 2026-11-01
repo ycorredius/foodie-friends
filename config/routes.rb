@@ -9,6 +9,7 @@ Rails.application.routes.draw do
       resource :registration, only: :create
       resource :me, controller: :me, only: %i[show update destroy]
       resources :recipes, except: %i[new edit]
+      resources :direct_uploads, only: :create
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
