@@ -7,7 +7,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resource :session, only: %i[create destroy]
       resource :registration, only: :create
-      resource :me, controller: :me, only: %i[show update]
+      resource :me, controller: :me, only: %i[show update destroy]
       resources :recipes, except: %i[new edit]
     end
   end

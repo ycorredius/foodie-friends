@@ -39,4 +39,12 @@ RSpec.describe "Sessions", type: :request do
     get root_path
     expect(response).to redirect_to(new_session_path)
   end
+
+  it "reactivates a deactivated account on sign-in" do
+    user.deactivate!
+    sign_in
+    expect(response).to redirect_to(root_url)
+    expect(flash[:notice]).to eq("Welcome back! Your account has been reactivated.")
+    expect(user.reload).not_to be_deactivated
+  end
 end
