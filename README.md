@@ -66,4 +66,7 @@ All endpoints are under `/api/v1` and speak JSON. Authenticated endpoints take `
 
 ## Deployment
 
-Deployed to Render via `render.yaml`. Set `RAILS_MASTER_KEY` (from `config/master.key`) and `APP_HOST` in the Render dashboard.
+No hosting provider has been chosen yet. Wherever it runs, production needs:
+
+- **Environment:** `DATABASE_URL` (one Postgres database), `RAILS_MASTER_KEY` (from `config/master.key`), `APP_HOST` (the domain used in email links), and `SOLID_QUEUE_IN_PUMA=true` to run background jobs inside the web server (or run `bin/jobs` as a separate process).
+- **Build:** `bundle install`, `bin/rails assets:precompile`, `bin/rails db:prepare`.

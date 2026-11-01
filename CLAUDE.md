@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Stack
 
-Rails 8.1 on Ruby 4.0.9 (`.ruby-version`), PostgreSQL, Hotwire (Turbo + Stimulus via importmap), Tailwind via `tailwindcss-rails`, Propshaft. Authentication is Rails' built-in generator (`has_secure_password`), not Devise. Deployed to Render (`render.yaml`, `bin/render-build.sh`).
+Rails 8.1 on Ruby 4.0.9 (`.ruby-version`), PostgreSQL, Hotwire (Turbo + Stimulus via importmap), Tailwind via `tailwindcss-rails`, Propshaft. Authentication is Rails' built-in generator (`has_secure_password`), not Devise. No hosting provider has been chosen yet.
 
 This app is a rewrite of an older Devise-based app that lives in `main`'s history before the rewrite commit. Features (recipes, ingredients, friends/invitations, comments, photos) are being ported from it incrementally — look there for the original behavior, but don't copy its patterns wholesale.
 
@@ -41,9 +41,9 @@ Tests are RSpec + FactoryBot (`spec/`); there is no Minitest `test/` directory. 
 
 **Seeds** (`db/seeds.rb`) must stay idempotent and production-safe; `spec/db/seeds_spec.rb` enforces this. Data lives in `db/seeds/*.yml`: every ingredient a seed recipe uses must be listed in `ingredients.yml` with a category (the spec checks). Starter recipes belong to the `kitchen@foodiefriends.example` account, which has a random password; the `demo@example.com` login is created in development only.
 
-**Single database.** Render provides one Postgres database, so Solid Cache, Solid Queue and Solid Cable all live in the primary DB: their tables come from regular migrations in `db/migrate` (not `db/*_schema.rb`), and nothing uses `connects_to`. Keep it that way when upgrading these gems — new Solid* schema changes must be added as migrations. In production Solid Queue runs inside Puma (`SOLID_QUEUE_IN_PUMA`).
+**Single database.** Solid Cache, Solid Queue and Solid Cable all live in the primary DB, so production needs only one Postgres database: their tables come from regular migrations in `db/migrate` (not `db/*_schema.rb`), and nothing uses `connects_to`. Keep it that way when upgrading these gems — new Solid* schema changes must be added as migrations. In production Solid Queue runs inside Puma (`SOLID_QUEUE_IN_PUMA`).
 
-**Production env vars** (Render): `DATABASE_URL`, `RAILS_MASTER_KEY` (matches the local, gitignored `config/master.key`), `APP_HOST` (mailer link host). Outbound email delivery is not configured yet, so password-reset emails aren't sent in production. Active Storage image variants need libvips on the host.
+**Production env vars:** `DATABASE_URL`, `RAILS_MASTER_KEY` (matches the local, gitignored `config/master.key`), `APP_HOST` (mailer link host). Outbound email delivery is not configured yet, so password-reset emails aren't sent in production. Active Storage image variants need libvips on the host.
 
 ## Design
 
