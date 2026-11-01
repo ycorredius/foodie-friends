@@ -48,8 +48,9 @@ Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-da
 - [x] Follow and unfollow; follow requests with approve, decline, and remove follower
 - [x] Making a profile public approves pending requests; making it private keeps existing followers
 - [x] Recipe visibility follows profile privacy (recipe lists, recipe pages, profiles)
-- [ ] Feed of recipes from people you follow; Explore (newest, popular)
-- [ ] Search with filters (meal type, total time, tags), using Postgres full-text search
+- [x] Feed of recipes from people you follow; Explore (newest)
+- [x] Search with filters (meal type, difficulty, total time, tags), using Postgres full-text search; recipe tags; find people by name
+- [ ] Explore sorted by popularity (needs saves)
 - [ ] Save recipes; copy ("fork") a recipe to adapt it
 
 ### Phase 3: Meal planning
@@ -76,4 +77,14 @@ Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-da
 - Budgeting: cost per recipe and serving, weekly budgets, filtering by cost
 - Comments, ratings, collections
 - Import a recipe from a link (schema.org Recipe data)
+- Suggested tags: an API endpoint the app can call while an author tags a recipe, returning tags to offer them. Possible sources: the most-used tags across recipes, matches for what the author has typed so far, and tags inferred from the recipe itself (e.g. "vegetarian" when no ingredient is meat or seafood, "quick" when total time is short). Keeps tags consistent ("quick" instead of "fast" and "speedy").
+  - Seed a long curated list of tags (e.g. `db/seeds/tags.yml`) so suggestions work before there's much user data. Possible groups:
+    - Diet: vegetarian, vegan, pescatarian, gluten-free, dairy-free, nut-free, low-carb, high-protein
+    - Time and effort: quick, under-30-minutes, make-ahead, no-cook, one-pan, one-pot, sheet-pan
+    - Cost: budget, pantry-staples, leftovers
+    - Method: slow-cooker, pressure-cooker, air-fryer, grill, baked, stir-fry
+    - Occasion: weeknight, weekend, holiday, potluck, picnic, lunchbox
+    - Audience: kid-friendly, crowd-pleaser, date-night
+    - Cuisine: italian, mexican, chinese, indian, thai, japanese, mediterranean, southern
+    - Storage: freezer-friendly, meal-prep
 - Notifications, pantry tracking, suggested meal plans

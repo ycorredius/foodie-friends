@@ -4,6 +4,7 @@
   description: Weekend pancakes from pantry staples.
   meal_type: breakfast
   difficulty: easy
+  tags: [vegetarian, kid-friendly]
   servings: 4
   prep_minutes: 10
   cook_minutes: 15
@@ -26,6 +27,7 @@
   description: Make it the night before for a no-cook breakfast.
   meal_type: breakfast
   difficulty: easy
+  tags: [vegetarian, no-cook, make-ahead]
   servings: 2
   prep_minutes: 5
   steps:
@@ -44,6 +46,7 @@
   description: A quick lunch from the pantry.
   meal_type: lunch
   difficulty: easy
+  tags: [quick, no-cook, budget]
   servings: 4
   prep_minutes: 10
   steps:
@@ -64,6 +67,7 @@
   description: Hearty, cheap and freezes well.
   meal_type: lunch
   difficulty: easy
+  tags: [vegan, budget, freezer-friendly]
   servings: 6
   prep_minutes: 15
   cook_minutes: 40
@@ -89,6 +93,7 @@
   description: A meatless chili that feeds a crowd.
   meal_type: dinner
   difficulty: easy
+  tags: [vegetarian, budget, freezer-friendly]
   servings: 6
   prep_minutes: 15
   cook_minutes: 35
@@ -115,6 +120,7 @@
   description: One pan, very few dishes.
   meal_type: dinner
   difficulty: easy
+  tags: [one-pan, gluten-free, kid-friendly]
   servings: 4
   prep_minutes: 15
   cook_minutes: 30
@@ -137,6 +143,7 @@
   description: A weeknight classic.
   meal_type: dinner
   difficulty: easy
+  tags: [kid-friendly, budget]
   servings: 6
   prep_minutes: 10
   cook_minutes: 30
@@ -161,6 +168,7 @@
   description: A good use for leftover rice.
   meal_type: dinner
   difficulty: medium
+  tags: [quick, leftovers]
   servings: 4
   prep_minutes: 15
   cook_minutes: 15
@@ -184,6 +192,7 @@
   description: A simple side that goes with almost anything.
   meal_type: side
   difficulty: easy
+  tags: [vegetarian, gluten-free, quick]
   servings: 4
   prep_minutes: 5
   cook_minutes: 10
@@ -203,6 +212,7 @@
   description: The best use for overripe bananas.
   meal_type: dessert
   difficulty: easy
+  tags: [vegetarian, make-ahead]
   servings: 10
   prep_minutes: 15
   cook_minutes: 60

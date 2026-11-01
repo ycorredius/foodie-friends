@@ -40,11 +40,13 @@ List endpoints return newest first, 20 items by default. Pass `limit` (max 50) f
 | `GET` | `/api/v1/me` | ✓ | The current user. |
 | `PATCH` | `/api/v1/me` | ✓ | Update `{user: {first_name, last_name, unit_system, private_profile}}`. `unit_system` is `us_customary` (default) or `metric`. Making a profile public approves pending follow requests. |
 | `DELETE` | `/api/v1/me` | ✓ | Delete your account. Body: `{password}`. Deactivates it and signs out everywhere; returns `{deletes_at}`. Signing in before then reactivates it; after 30 days it's deleted permanently. Rate limited. |
-| `GET` | `/api/v1/recipes` | ✓ | Recipes visible to you. Optional `user_id` filter. Returns `{recipes, next_page}`. |
+| `GET` | `/api/v1/recipes` | ✓ | Explore: recipes visible to you, with optional search and filters (below). Returns `{recipes, next_page}`. |
+| `GET` | `/api/v1/feed` | ✓ | Public recipes from people you follow (not your own). Returns `{recipes, next_page}`. |
 | `GET` | `/api/v1/recipes/:id` | ✓ | A recipe with steps and ingredients. Optional `servings` scales quantities. |
 | `POST` | `/api/v1/recipes` | ✓ | Create. Body below. |
 | `PATCH` | `/api/v1/recipes/:id` | ✓ | Update your recipe. Sending `ingredients` replaces all ingredient lines. |
 | `DELETE` | `/api/v1/recipes/:id` | ✓ | Delete your recipe. |
+| `GET` | `/api/v1/users?q=` | ✓ | Find people by name. Returns `{users, next_page}`. |
 | `GET` | `/api/v1/users/:id` | ✓ | A profile: `id`, names, `private_profile`, `followers_count`, `following_count`, `recipes_count` (visible to you), `follow_status` (`accepted`, `pending` or `null`), `follows_you`. |
 | `POST` | `/api/v1/users/:id/follow` | ✓ | Follow, or request to follow a private profile. Returns `{status}`: `accepted` or `pending`. |
 | `DELETE` | `/api/v1/users/:id/follow` | ✓ | Unfollow, or cancel a pending request. |
@@ -63,6 +65,7 @@ List endpoints return newest first, 20 items by default. Pass `limit` (max 50) f
   "prep_minutes": 10, "cook_minutes": 15,
   "meal_type": "breakfast", "difficulty": "easy", "visibility": "public",
   "steps": ["Mix.", "Cook."],
+  "tags": ["vegetarian", "quick"],
   "ingredients": [
     {"name": "flour", "quantity": 2, "unit": "cup", "note": "sifted"},
     {"name": "salt", "note": "to taste"}
@@ -71,6 +74,15 @@ List endpoints return newest first, 20 items by default. Pass `limit` (max 50) f
 ```
 
 - `meal_type`: breakfast, lunch, dinner, snack, dessert, appetizer, side, drink. `difficulty`: easy, medium, hard. `visibility`: public, only_me.
+- `tags`: chosen by the author; lowercased and de-duplicated, at most 10 tags of 30 characters each.
+- **Search and filters** on `GET /api/v1/recipes` (all optional, combined with AND):
+  - `q`: full-text search over title, description and ingredient names. Matches word forms ("pancake" finds "pancakes") and supports `"quoted phrases"`, `OR`, and `-excluded` words.
+  - `meal_type`, `difficulty`: one of the values above.
+  - `max_total_minutes`: prep + cook time at most this long. Recipes with no times are excluded.
+  - `tags`: recipes with all of these tags, as an array or comma-separated (`tags=vegetarian,quick`).
+  - `user_id`: recipes by one author.
+
+  Invalid values return `422`. Results are newest first.
 - `unit`: g, kg, oz, lb, ml, l, tsp, tbsp, fl_oz, cup, pint, quart, gallon, or a count unit (each, clove, slice, can, package, bunch, sprig, stick, pinch, dash). Quantity and unit may both be omitted.
 - Responses convert weights and volumes to the reader's `unit_system` and scale to the requested `servings`; each ingredient's `original` holds the amount as written. Count units are scaled but never converted.
 - Validation errors return `422` with `{errors: {field: [messages]}}`; ingredient errors are keyed by position, e.g. `ingredients[1].unit`.

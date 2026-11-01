@@ -109,4 +109,39 @@ RSpec.describe Recipe, type: :model do
       expect(build(:recipe).total_minutes).to be_nil
     end
   end
+
+  describe "tags" do
+    it "normalizes tags" do
+      expect(build(:recipe, tags: [" Quick ", "quick", "", "Kid  Friendly"]).tags).to eq(["quick", "kid friendly"])
+    end
+
+    it "limits the number and length of tags" do
+      expect(build(:recipe, tags: (1..11).map { |n| "tag#{n}" })).not_to be_valid
+      expect(build(:recipe, tags: ["x" * 31])).not_to be_valid
+    end
+  end
+
+  describe "search" do
+    let(:recipe) do
+      create(:recipe, title: "Fried Rice", description: "Weeknight favorite").tap do |r|
+        r.update!(ingredient_lines: [{name: "chicken breast", quantity: 1, unit: "lb"}])
+      end
+    end
+
+    it "keeps the ingredient name copy in sync" do
+      expect(recipe.ingredient_names).to eq("chicken breast")
+      recipe.update!(title: "Better Fried Rice")
+      expect(recipe.reload.ingredient_names).to eq("chicken breast")
+      recipe.update!(ingredient_lines: [{name: "shrimp", quantity: 1, unit: "lb"}])
+      expect(recipe.reload.ingredient_names).to eq("shrimp")
+    end
+
+    it "matches words across title, description and ingredients, with stemming" do
+      recipe
+      expect(Recipe.search("chicken rice")).to contain_exactly(recipe)
+      expect(Recipe.search("favorites")).to contain_exactly(recipe)
+      expect(Recipe.search("chicken -rice")).to be_empty
+      expect(Recipe.search("beef")).to be_empty
+    end
+  end
 end
