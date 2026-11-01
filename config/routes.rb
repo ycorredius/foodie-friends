@@ -25,6 +25,10 @@ Rails.application.routes.draw do
         resource :fork, only: :create
       end
       resource :feed, only: :show
+      resource :household, only: %i[show update]
+      get "meal_plans/:date", to: "meal_plans#show", as: :meal_plan
+      post "meal_plans/:date/copy", to: "meal_plans#copy", as: :copy_meal_plan
+      resources :planned_meals, only: %i[create update destroy]
       resources :direct_uploads, only: :create
     end
   end

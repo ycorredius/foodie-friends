@@ -8,6 +8,12 @@ class User < ApplicationRecord
   has_many :sessions, dependent: :destroy
   has_many :recipes, dependent: :destroy
   has_many :saved_recipes, dependent: :destroy
+  # One household per user for now; see docs/ROADMAP.md for multi-household managers.
+  has_one :household_membership, dependent: :destroy
+  has_one :household, through: :household_membership
+
+  # Every user gets a household of one at sign-up.
+  after_create :create_default_household
 
   has_many :follows_given, class_name: "Follow", foreign_key: :follower_id, dependent: :destroy, inverse_of: :follower
   has_many :follows_received, class_name: "Follow", foreign_key: :followed_id, dependent: :destroy, inverse_of: :followed
@@ -19,6 +25,8 @@ class User < ApplicationRecord
 
   # Recipe quantities are shown to the user in this system.
   enum :unit_system, {us_customary: 0, metric: 1}, validate: true
+  # The first day of the week in the meal planner.
+  enum :week_start_day, {sunday: 0, monday: 1}, prefix: :week_starts, validate: true
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
@@ -37,6 +45,12 @@ class User < ApplicationRecord
 
   def full_name
     "#{first_name} #{last_name}"
+  end
+
+  # The dates of the planner week containing `date`, per week_start_day.
+  def week_containing(date)
+    start = date.beginning_of_week(week_start_day.to_sym)
+    start..(start + 6.days)
   end
 
   def deactivated?
@@ -85,6 +99,10 @@ class User < ApplicationRecord
   end
 
   private
+
+  def create_default_household
+    create_household_membership!(household: Household.create!(name: "#{first_name}'s household"))
+  end
 
   def approve_pending_follow_requests
     follows_received.pending.update_all(status: Follow.statuses[:accepted], updated_at: Time.current)

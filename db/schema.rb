@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_01_200001) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_01_210003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -55,12 +55,43 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_200001) do
     t.check_constraint "follower_id <> followed_id", name: "follows_not_self"
   end
 
+  create_table "household_memberships", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_household_memberships_on_household_id"
+    t.index ["user_id"], name: "index_household_memberships_on_user_id", unique: true
+  end
+
+  create_table "households", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "size", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "ingredients", force: :cascade do |t|
     t.string "name", null: false
     t.integer "category", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_ingredients_on_name", unique: true
+  end
+
+  create_table "planned_meals", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "recipe_id", null: false
+    t.date "date", null: false
+    t.integer "meal_slot", null: false
+    t.integer "servings", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "lock_version", default: 0, null: false
+    t.index ["household_id", "date", "meal_slot", "recipe_id"], name: "index_planned_meals_once_per_slot", unique: true
+    t.index ["household_id", "date"], name: "index_planned_meals_on_household_id_and_date"
+    t.index ["household_id"], name: "index_planned_meals_on_household_id"
+    t.index ["recipe_id"], name: "index_planned_meals_on_recipe_id"
   end
 
   create_table "recipe_ingredients", force: :cascade do |t|
@@ -304,6 +335,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_200001) do
     t.integer "unit_system", default: 0, null: false
     t.datetime "deactivated_at"
     t.boolean "private_profile", default: false, null: false
+    t.integer "week_start_day", default: 0, null: false
     t.index ["deactivated_at"], name: "index_users_on_deactivated_at"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
@@ -312,6 +344,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_200001) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "follows", "users", column: "followed_id"
   add_foreign_key "follows", "users", column: "follower_id"
+  add_foreign_key "household_memberships", "households"
+  add_foreign_key "household_memberships", "users"
+  add_foreign_key "planned_meals", "households"
+  add_foreign_key "planned_meals", "recipes", on_delete: :cascade
   add_foreign_key "recipe_ingredients", "ingredients"
   add_foreign_key "recipe_ingredients", "recipes"
   add_foreign_key "recipes", "recipes", column: "forked_from_id", on_delete: :nullify

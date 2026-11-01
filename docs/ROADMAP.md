@@ -23,7 +23,7 @@ Foodie Friends is a place for families to discover meal ideas, plan their week, 
 | **RecipeIngredient** | Quantity + unit + ingredient + note, in order |
 | **Follow** | Follower → followed, with status `pending` or `accepted` |
 | **Household** | Owns meal plans and grocery lists; has members and a size |
-| **MealPlan / MealPlanEntry** | A week; each entry is a recipe in a day and meal slot, with a servings override |
+| **PlannedMeal** | A recipe on a date and meal slot for a household, with servings; a week is a date range, starting on the user's chosen day |
 | **GroceryList / GroceryItem** | Generated from a meal plan plus manual items; checked off while shopping |
 | **IngredientPrice** | Price a household paid per unit (stored for future budgeting) |
 
@@ -56,9 +56,10 @@ Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-da
 
 ### Phase 3: Meal planning
 
-- Household of one created at sign-up
-- Weekly planner: days × breakfast/lunch/dinner/snack; servings default to the household size
-- Copy last week's plan; reusable plan templates
+- [x] Household of one created at sign-up; household name and size
+- [x] Weekly planner: days × breakfast/lunch/dinner/snack, several recipes per slot; servings default to the household size; week start is a user setting (Sunday or Monday)
+- [x] Copy last week's (or any week's) plan, refusing to overwrite unless asked
+- [ ] Reusable plan templates
 
 ### Phase 4: Grocery lists
 
@@ -68,8 +69,9 @@ Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-da
 
 ### Phase 5: Household sharing
 
-- Invite family members to a household
-- Shared meal plans and grocery lists, with live updates via Action Cable
+- Invite family members to a household. Users belong to one household at a time: accepting an invite moves them into the new household, and if they were alone in their old one they choose whether to bring their planned meals along or discard them. Leaving a household gives them a fresh household of one.
+- Shared meal plans and grocery lists, with live updates via Action Cable. Before building this, review "Editing planned meals in shared households" in [THINGS_TO_REVIEW.md](THINGS_TO_REVIEW.md) (roles, owner approval).
+- Later: a household manager role (e.g. for private chefs) allowing one user to manage several households and switch between them. Regular members stay limited to one household; this relaxes the one-household-per-user rule only for managers and adds a role to memberships.
 
 ### Later
 
