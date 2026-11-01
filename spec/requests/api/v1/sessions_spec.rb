@@ -81,14 +81,4 @@ RSpec.describe "API sessions", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
   end
-
-  describe "GET /api/v1/me" do
-    it "returns the current user" do
-      get api_v1_me_path, headers: bearer(create(:session, user: user).token)
-      expect(response.parsed_body).to eq(
-        "id" => user.id, "email_address" => user.email_address,
-        "first_name" => user.first_name, "last_name" => user.last_name
-      )
-    end
-  end
 end

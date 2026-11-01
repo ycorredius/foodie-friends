@@ -7,7 +7,8 @@ Rails.application.routes.draw do
     namespace :v1 do
       resource :session, only: %i[create destroy]
       resource :registration, only: :create
-      resource :me, controller: :me, only: :show
+      resource :me, controller: :me, only: %i[show update]
+      resources :recipes, except: %i[new edit]
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

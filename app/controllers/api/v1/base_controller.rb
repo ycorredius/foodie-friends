@@ -5,6 +5,10 @@ class Api::V1::BaseController < ActionController::API
 
   before_action :require_authentication
 
+  rescue_from ActiveRecord::RecordNotFound do
+    render json: {error: "Not found"}, status: :not_found
+  end
+
   def self.allow_unauthenticated_access(**options)
     skip_before_action :require_authentication, **options
   end
