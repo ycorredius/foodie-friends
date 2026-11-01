@@ -1,7 +1,0 @@
-<% if current_user.friends_with?(@user) %>
-  <%= button_to "Unfriend", user_invitation_path(user_id: @user), method: :delete, data: { turbo_confirm: "Are you sure?"} %>
-<% elsif Invitation.pending_invitation(current_user, @user) %>
-  <%= button_to "Cancel Friend Request", user_invitation_path(user_id: @user), method: :delete, data: {turbo_confirm: "Are you sure?"}  %>
-<% else %>
-  <%= button_to "Add Friend", user_invitations_path(user_id: @user), class: "disabled", method: :post %>
-<% end %>

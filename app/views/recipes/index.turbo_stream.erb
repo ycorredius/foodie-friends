@@ -1,9 +1,0 @@
-<%= turbo_stream.append :recipes do %>
-  <%= render @recipes %>
-<% end %>
-
-<%= turbo_stream.replace :pagination do %>
-  <% if @pagy.next.present? %>
-      <%= turbo_frame_tag :pagination, loading: :lazy, src: root_path(format: :turbo_stream, page: @pagy.next, name: params[:name]) %>
-  <%end%>
-<% end %>

@@ -5,8 +5,8 @@ application up and running.
 
 Things you may want to cover:
 
-Ruby Version 2.7.2
-Rails Verison 
+* Ruby version
+
 * System dependencies
 
 * Configuration
@@ -22,9 +22,3 @@ Rails Verison
 * Deployment instructions
 
 * ...
-
-primary color palatee:
- primary: 1D5B79
- secondary: 468B97
- tertiary: EF6262
- quantary: F3AA60
