@@ -11,6 +11,8 @@ Foodie Friends is a place for families to discover meal ideas, plan their week, 
 - **Units are a user preference.** Users choose `us_customary` (default) or `metric`. Recipes store quantities as the author wrote them; the server scales and converts weight and volume for each reader. Count units ("2 eggs") are never converted.
 - **Pricing is stored, not used.** Grocery items can record prices, but there are no budgeting features yet.
 - **Lists use cursor pagination** (`before` + `next_cursor`), which suits infinite scroll on mobile.
+- **External services wait for a working web app.** No hosting provider, cloud file storage or email provider has been chosen. Until then, photos are stored on local disk through Active Storage (switching to cloud storage later is a configuration change), and password-reset emails aren't sent in production.
+- **Account deletion is deactivation first.** Deleting an account deactivates it; signing in within 30 days reactivates it, and after that it's deleted permanently.
 
 ## Data model
 
@@ -36,10 +38,9 @@ Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-da
 - [x] Recipe CRUD, structured ingredients, shared ingredient catalog ([#32](https://github.com/ycorredius/foodie-friends/pull/32))
 - [x] Unit preference, server-side conversion, scaling by servings ([#32](https://github.com/ycorredius/foodie-friends/pull/32))
 - [x] Public / only-me visibility ([#32](https://github.com/ycorredius/foodie-friends/pull/32))
-- [ ] Recipe photos via Active Storage direct uploads (needs a storage provider: S3 or Google Cloud Storage)
-- [ ] Email delivery in production (password reset)
-- [x] Account deletion: deactivate, reactivate on sign-in, permanently delete after 30 days
-- [x] Seed recipes and ingredient categories
+- [x] Seed recipes and ingredient categories ([#34](https://github.com/ycorredius/foodie-friends/pull/34))
+- [x] Account deletion: deactivate, reactivate on sign-in, permanently delete after 30 days ([#35](https://github.com/ycorredius/foodie-friends/pull/35))
+- [ ] Recipe photos via Active Storage direct uploads, stored on local disk for now
 
 ### Phase 2: Social and discovery
 
@@ -71,6 +72,7 @@ Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-da
 ### Later
 
 - Web UI
+- Once the web UI works: choose hosting, move photos to cloud storage (S3 or Google Cloud Storage), and set up email delivery for password resets
 - Budgeting: cost per recipe and serving, weekly budgets, filtering by cost
 - Comments, ratings, collections
 - Import a recipe from a link (schema.org Recipe data)
