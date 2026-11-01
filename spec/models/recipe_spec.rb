@@ -33,6 +33,12 @@ RSpec.describe Recipe, type: :model do
 
       expect(Recipe.visible_to(user)).to contain_exactly(public_recipe, own_private)
     end
+
+    it "hides public recipes by deactivated users" do
+      recipe = create(:recipe)
+      recipe.user.deactivate!
+      expect(Recipe.visible_to(create(:user))).not_to include(recipe)
+    end
   end
 
   describe "#ingredient_lines=" do

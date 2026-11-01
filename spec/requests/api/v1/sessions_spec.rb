@@ -38,6 +38,26 @@ RSpec.describe "API sessions", type: :request do
       sign_in(email_address: "nobody@example.com")
       expect(response).to have_http_status(:unauthorized)
     end
+
+    it "reports reactivated: false for an active account" do
+      sign_in
+      expect(response.parsed_body["reactivated"]).to be(false)
+    end
+
+    it "reactivates a deactivated account" do
+      user.deactivate!
+      sign_in
+      expect(response).to have_http_status(:created)
+      expect(response.parsed_body["reactivated"]).to be(true)
+      expect(user.reload).not_to be_deactivated
+    end
+
+    it "doesn't reactivate with a wrong password" do
+      user.deactivate!
+      sign_in(password: "wrong-password")
+      expect(response).to have_http_status(:unauthorized)
+      expect(user.reload).to be_deactivated
+    end
   end
 
   describe "DELETE /api/v1/session" do

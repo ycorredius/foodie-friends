@@ -21,4 +21,11 @@ RSpec.describe "API registrations", type: :request do
     expect(response).to have_http_status(:unprocessable_entity)
     expect(response.parsed_body["errors"]).to have_key("email_address")
   end
+
+  it "keeps a deactivated account's email reserved" do
+    create(:user, email_address: "new@example.com").deactivate!
+    post api_v1_registration_path, params: valid_params, as: :json
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response.parsed_body["errors"]).to have_key("email_address")
+  end
 end

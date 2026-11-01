@@ -34,4 +34,42 @@ RSpec.describe "API me", type: :request do
       expect(user.authenticate("password123")).to be_truthy
     end
   end
+
+  describe "DELETE /api/v1/me" do
+    it "deactivates the account and revokes every token" do
+      other_token = create(:session, user: user).token
+      freeze_time do
+        delete api_v1_me_path, params: {password: "password123"}, headers: headers, as: :json
+        expect(response).to have_http_status(:ok)
+        expect(Time.zone.parse(response.parsed_body["deletes_at"])).to eq(User::DELETION_GRACE_PERIOD.from_now)
+      end
+      expect(user.reload).to be_deactivated
+
+      get api_v1_me_path, headers: headers
+      expect(response).to have_http_status(:unauthorized)
+      get api_v1_me_path, headers: {Authorization: "Bearer #{other_token}"}
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "requires the correct password" do
+      delete api_v1_me_path, params: {password: "wrong-password"}, headers: headers, as: :json
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body).to eq("errors" => {"password" => ["is incorrect"]})
+      expect(user.reload).not_to be_deactivated
+
+      delete api_v1_me_path, headers: headers, as: :json
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "hides the user's recipes from others" do
+      recipe = create(:recipe, user: user)
+      viewer = {Authorization: "Bearer #{create(:session).token}"}
+      delete api_v1_me_path, params: {password: "password123"}, headers: headers, as: :json
+
+      get api_v1_recipe_path(recipe), headers: viewer
+      expect(response).to have_http_status(:not_found)
+      get api_v1_recipes_path, headers: viewer
+      expect(response.parsed_body["recipes"]).to be_empty
+    end
+  end
 end

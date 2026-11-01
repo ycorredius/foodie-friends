@@ -33,10 +33,11 @@ All endpoints are under `/api/v1` and speak JSON. Authenticated endpoints take `
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | `POST` | `/api/v1/registration` | — | Sign up. Body: `{user: {first_name, last_name, email_address, password, password_confirmation}}`. Returns `{token, user}`. |
-| `POST` | `/api/v1/session` | — | Sign in. Body: `{email_address, password}`. Returns `{token, user}`. Rate limited. |
+| `POST` | `/api/v1/session` | — | Sign in. Body: `{email_address, password}`. Returns `{token, reactivated, user}`; `reactivated` is true when signing in restored a deactivated account. Rate limited. |
 | `DELETE` | `/api/v1/session` | ✓ | Sign out (revokes the token used). |
 | `GET` | `/api/v1/me` | ✓ | The current user. |
 | `PATCH` | `/api/v1/me` | ✓ | Update `{user: {first_name, last_name, unit_system}}`. `unit_system` is `us_customary` (default) or `metric`. |
+| `DELETE` | `/api/v1/me` | ✓ | Delete your account. Body: `{password}`. Deactivates it and signs out everywhere; returns `{deletes_at}`. Signing in before then reactivates it; after 30 days it's deleted permanently. Rate limited. |
 | `GET` | `/api/v1/recipes` | ✓ | Recipes visible to you, newest first. Params: `limit` (max 50), `before` (the previous page's `next_cursor`), `user_id`. Returns `{recipes, next_cursor}`. |
 | `GET` | `/api/v1/recipes/:id` | ✓ | A recipe with steps and ingredients. Optional `servings` scales quantities. |
 | `POST` | `/api/v1/recipes` | ✓ | Create. Body below. |
