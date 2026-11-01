@@ -5,19 +5,8 @@ class Api::V1::UsersController < Api::BaseController
   def create
     user = User.new(devise_parameter_sanitizer.sanitize(:sign_up))
     if user.save
-      api_token = user.api_tokens.first_or_create(name: ApiToken::DEFAULT_NAME)
-      render json: {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.full_name,
-          api_tokens: [{
-            id: api_token.id,
-            name: api_token.name,
-            token: api_token.token
-          }]
-        }
-      }, status: :created
+      api_token = user.api_tokens.create!
+      render json: {token: api_token.token, user: UserSerializer.new(user, root: false)}, status: :created
     else
       render json: {
         errors: user.errors,

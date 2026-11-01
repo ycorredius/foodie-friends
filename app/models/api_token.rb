@@ -3,67 +3,67 @@
 # Table name: api_tokens
 #
 #  id           :bigint           not null, primary key
-#  expires_at   :datetime
+#  expires_at   :datetime         not null
 #  last_used_at :datetime
-#  metada       :jsonb
-#  name         :string
-#  token        :string
+#  token_digest :string           not null
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  user_id      :bigint           not null
 #
 # Indexes
 #
-#  index_api_tokens_on_user_id  (user_id)
+#  index_api_tokens_on_token_digest  (token_digest) UNIQUE
+#  index_api_tokens_on_user_id       (user_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (user_id => users.id)
 #
 
+# A bearer token for the JSON API. Only a SHA-256 digest is stored; the
+# plaintext token is available via #token on the instance that created it and
+# must be handed to the client then. Tokens expire after TTL of inactivity.
 class ApiToken < ApplicationRecord
-  DEFAULT_NAME = I18n.t("Default")
-  APP_NAME = I18n.t("App")
+  TTL = 30.days
 
   belongs_to :user
 
-  scope :sorted, -> { order("last_used_at DESC NULLS LAST, created_at DESC") }
+  attr_reader :token
 
-  has_secure_token :token
+  before_validation :generate_token, on: :create
 
-  validates :name, presence: true
+  validates :token_digest, presence: true, uniqueness: true
 
-  after_create :set_expiration
+  scope :active, -> { where("expires_at > ?", Time.current) }
+  scope :expired, -> { where("expires_at <= ?", Time.current) }
 
-  def can?(permission)
-    Array.wrap(data("permissions")).include?(permission)
+  def self.digest(token)
+    OpenSSL::Digest::SHA256.hexdigest(token)
   end
 
-  def cant?(permission)
-    !can?(permission)
-  end
+  # Returns the active token matching the plaintext token and slides its
+  # expiry forward, or nil.
+  def self.authenticate(token)
+    return if token.blank?
 
-  def data(key, default: nil)
-    metadata.fetch(key, default)
+    api_token = active.find_by(token_digest: digest(token))
+    api_token&.refresh!
+    api_token
   end
 
   def expired?
-    expires_at? && Time.current >= expires_at
+    expires_at <= Time.current
   end
 
-  def touch_last_used_at
-    return if transient?
-    update(last_used_at: Time.current)
+  def refresh!
+    update_columns(last_used_at: Time.current, expires_at: TTL.from_now)
   end
+
+  private
 
   def generate_token
-    loop do
-      self.token = SecureRandom.hex(16)
-      break unless ApiToken.where(token: token).exists?
-    end
-  end
-
-  def set_expiration
-    update(expires_at: Time.current + 12.hours)
+    @token = SecureRandom.base58(32)
+    self.token_digest = self.class.digest(@token)
+    self.expires_at = TTL.from_now
   end
 end

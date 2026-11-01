@@ -5,27 +5,18 @@ class Api::BaseController < ApplicationController
   private
 
   def authenticate_api_token!
-    if (@user = user_from_token)
-      sign_in(@user, store: false)
-    else
-      head :unauthorized
-    end
+    head :unauthorized unless authenticate_api_token
   end
 
-  def token_from_header
-    request.headers.fetch("Authorization", "").split(" ").last
-  end
+  # Signs in the user for a valid "Authorization: Bearer <token>" header.
+  # Use directly as a before_action for endpoints where auth is optional.
+  def authenticate_api_token
+    @api_token = authenticate_with_http_token { |token, _options| ApiToken.authenticate(token) }
+    return unless @api_token
 
-  def api_token
-    @api_token ||= ApiToken.find_by(token: token_from_header)
-  end
-
-  # Only for use within authenticate_api_token! above
-  # Use current_user/Current.user or current_account/Current.account within app controllers
-  def user_from_token
-    return unless api_token.present?
-
-    api_token.touch(:last_used_at)
-    api_token.user
+    @user = @api_token.user
+    # API requests aren't logins; don't update Devise's sign-in tracking.
+    request.env["devise.skip_trackable"] = true
+    sign_in(@user, store: false)
   end
 end
