@@ -1,0 +1,222 @@
+# Starter recipes owned by the Foodie Friends Kitchen account (see db/seeds.rb).
+# Every ingredient name must be listed in db/seeds/ingredients.yml.
+- title: Fluffy Pancakes
+  description: Weekend pancakes from pantry staples.
+  meal_type: breakfast
+  difficulty: easy
+  servings: 4
+  prep_minutes: 10
+  cook_minutes: 15
+  steps:
+    - Whisk the flour, sugar, baking powder and salt in a large bowl.
+    - In another bowl, whisk the milk, egg and melted butter.
+    - Pour the wet ingredients into the dry ones and stir until just combined; small lumps are fine.
+    - Heat a lightly buttered skillet over medium heat. Pour in about 1/4 cup of batter per pancake.
+    - Flip when bubbles form on top, about 2 minutes, then cook 1 to 2 minutes more.
+  ingredients:
+    - {name: all-purpose flour, quantity: 1.5, unit: cup}
+    - {name: sugar, quantity: 2, unit: tbsp}
+    - {name: baking powder, quantity: 1, unit: tbsp}
+    - {name: salt, quantity: 0.5, unit: tsp}
+    - {name: milk, quantity: 1.25, unit: cup}
+    - {name: eggs, quantity: 1, unit: each}
+    - {name: butter, quantity: 3, unit: tbsp, note: "melted, plus more for the pan"}
+
+- title: Overnight Oats
+  description: Make it the night before for a no-cook breakfast.
+  meal_type: breakfast
+  difficulty: easy
+  servings: 2
+  prep_minutes: 5
+  steps:
+    - Stir the oats, milk, yogurt, honey and cinnamon together in a jar or bowl.
+    - Cover and refrigerate overnight, or for at least 4 hours.
+    - Top with sliced banana and serve cold.
+  ingredients:
+    - {name: rolled oats, quantity: 1, unit: cup}
+    - {name: milk, quantity: 1, unit: cup}
+    - {name: plain yogurt, quantity: 0.5, unit: cup}
+    - {name: honey, quantity: 2, unit: tbsp}
+    - {name: ground cinnamon, quantity: 0.5, unit: tsp}
+    - {name: banana, quantity: 1, unit: each, note: "sliced"}
+
+- title: Tuna Salad Sandwiches
+  description: A quick lunch from the pantry.
+  meal_type: lunch
+  difficulty: easy
+  servings: 4
+  prep_minutes: 10
+  steps:
+    - Mix the tuna, mayonnaise, celery, mustard and lemon juice. Season to taste with salt and pepper.
+    - Spread over 4 slices of bread, top with lettuce, and close with the remaining bread.
+  ingredients:
+    - {name: canned tuna, quantity: 2, unit: can, note: "5 oz each, drained"}
+    - {name: mayonnaise, quantity: 0.33, unit: cup}
+    - {name: celery, quantity: 1, unit: each, note: "stalk, finely diced"}
+    - {name: dijon mustard, quantity: 1, unit: tsp}
+    - {name: lemon, quantity: 0.5, unit: each, note: "juiced"}
+    - {name: sandwich bread, quantity: 8, unit: slice}
+    - {name: lettuce, quantity: 4, note: "leaves"}
+    - {name: salt, note: "to taste"}
+    - {name: black pepper, note: "to taste"}
+
+- title: Lentil Soup
+  description: Hearty, cheap and freezes well.
+  meal_type: lunch
+  difficulty: easy
+  servings: 6
+  prep_minutes: 15
+  cook_minutes: 40
+  steps:
+    - Heat the oil in a large pot over medium heat. Cook the onion, carrots and celery until soft, about 8 minutes.
+    - Stir in the garlic and cumin and cook for 1 minute.
+    - Add the lentils, tomatoes and broth. Bring to a boil, then cover and simmer for 30 minutes, until the lentils are tender.
+    - Season with salt and the lemon juice.
+  ingredients:
+    - {name: olive oil, quantity: 2, unit: tbsp}
+    - {name: yellow onion, quantity: 1, unit: each, note: "diced"}
+    - {name: carrots, quantity: 2, unit: each, note: "diced"}
+    - {name: celery, quantity: 2, unit: each, note: "stalks, diced"}
+    - {name: garlic, quantity: 2, unit: clove, note: "minced"}
+    - {name: ground cumin, quantity: 1, unit: tsp}
+    - {name: lentils, quantity: 1.5, unit: cup, note: "rinsed"}
+    - {name: diced tomatoes, quantity: 1, unit: can, note: "14.5 oz"}
+    - {name: vegetable broth, quantity: 6, unit: cup}
+    - {name: salt, quantity: 1, unit: tsp}
+    - {name: lemon, quantity: 1, unit: each, note: "juiced"}
+
+- title: Black Bean Chili
+  description: A meatless chili that feeds a crowd.
+  meal_type: dinner
+  difficulty: easy
+  servings: 6
+  prep_minutes: 15
+  cook_minutes: 35
+  steps:
+    - Heat the oil in a large pot over medium heat. Cook the onion and bell pepper until soft, about 6 minutes.
+    - Add the garlic, chili powder and cumin and stir for 1 minute.
+    - Add the beans, tomatoes, broth and salt, and bring to a simmer.
+    - Simmer uncovered for 25 minutes, stirring now and then, until thickened.
+    - Serve topped with cheese.
+  ingredients:
+    - {name: olive oil, quantity: 2, unit: tbsp}
+    - {name: yellow onion, quantity: 1, unit: each, note: "diced"}
+    - {name: bell pepper, quantity: 1, unit: each, note: "diced"}
+    - {name: garlic, quantity: 3, unit: clove, note: "minced"}
+    - {name: chili powder, quantity: 2, unit: tbsp}
+    - {name: ground cumin, quantity: 2, unit: tsp}
+    - {name: black beans, quantity: 3, unit: can, note: "15 oz each, drained and rinsed"}
+    - {name: crushed tomatoes, quantity: 1, unit: can, note: "28 oz"}
+    - {name: vegetable broth, quantity: 1, unit: cup}
+    - {name: salt, quantity: 1, unit: tsp}
+    - {name: cheddar cheese, quantity: 1, unit: cup, note: "shredded, for serving"}
+
+- title: Sheet Pan Chicken and Vegetables
+  description: One pan, very few dishes.
+  meal_type: dinner
+  difficulty: easy
+  servings: 4
+  prep_minutes: 15
+  cook_minutes: 30
+  steps:
+    - Heat the oven to 425°F (220°C). Stir the garlic powder, paprika, salt and pepper together.
+    - Toss the potatoes with 1 tbsp of the oil and half of the seasoning, and roast on a sheet pan for 10 minutes.
+    - Toss the chicken and broccoli with the remaining oil and seasoning.
+    - Add them to the pan and roast 20 minutes more, until the chicken reaches 165°F (74°C).
+  ingredients:
+    - {name: chicken thighs, quantity: 2, unit: lb, note: "boneless and skinless"}
+    - {name: potatoes, quantity: 1.5, unit: lb, note: "cut into 1-inch pieces"}
+    - {name: broccoli, quantity: 1, unit: bunch, note: "cut into florets"}
+    - {name: olive oil, quantity: 3, unit: tbsp}
+    - {name: garlic powder, quantity: 1, unit: tsp}
+    - {name: paprika, quantity: 1, unit: tsp}
+    - {name: salt, quantity: 1.5, unit: tsp}
+    - {name: black pepper, quantity: 0.5, unit: tsp}
+
+- title: Spaghetti with Meat Sauce
+  description: A weeknight classic.
+  meal_type: dinner
+  difficulty: easy
+  servings: 6
+  prep_minutes: 10
+  cook_minutes: 30
+  steps:
+    - Brown the beef and onion in a large skillet over medium-high heat, breaking up the meat, about 8 minutes. Drain off excess fat.
+    - Stir in the garlic, tomato paste and oregano and cook for 1 minute.
+    - Add the crushed tomatoes and salt and simmer for 20 minutes.
+    - Meanwhile, cook the spaghetti in salted boiling water according to the package, then drain.
+    - Toss the pasta with the sauce and serve with parmesan.
+  ingredients:
+    - {name: spaghetti, quantity: 1, unit: lb}
+    - {name: ground beef, quantity: 1, unit: lb}
+    - {name: yellow onion, quantity: 1, unit: each, note: "diced"}
+    - {name: garlic, quantity: 3, unit: clove, note: "minced"}
+    - {name: tomato paste, quantity: 2, unit: tbsp}
+    - {name: dried oregano, quantity: 1, unit: tsp}
+    - {name: crushed tomatoes, quantity: 1, unit: can, note: "28 oz"}
+    - {name: salt, quantity: 1, unit: tsp}
+    - {name: parmesan cheese, quantity: 0.5, unit: cup, note: "grated"}
+
+- title: Chicken Fried Rice
+  description: A good use for leftover rice.
+  meal_type: dinner
+  difficulty: medium
+  servings: 4
+  prep_minutes: 15
+  cook_minutes: 15
+  steps:
+    - Heat 1 tbsp of the vegetable oil in a large skillet or wok over high heat. Cook the chicken until no longer pink, 5 to 6 minutes, then set aside.
+    - Add the remaining oil, then the peas and carrots, and cook for 2 minutes.
+    - Push the vegetables aside, scramble the eggs in the empty space, then mix everything together.
+    - Add the rice and cook, stirring, until hot, about 4 minutes.
+    - Stir in the chicken, soy sauce, sesame oil and green onions.
+  ingredients:
+    - {name: white rice, quantity: 4, unit: cup, note: "cooked, preferably a day old"}
+    - {name: chicken breast, quantity: 1, unit: lb, note: "diced"}
+    - {name: eggs, quantity: 2, unit: each, note: "beaten"}
+    - {name: frozen peas and carrots, quantity: 1.5, unit: cup}
+    - {name: green onions, quantity: 1, unit: bunch, note: "sliced"}
+    - {name: soy sauce, quantity: 3, unit: tbsp}
+    - {name: vegetable oil, quantity: 2, unit: tbsp}
+    - {name: sesame oil, quantity: 1, unit: tsp}
+
+- title: Garlic Green Beans
+  description: A simple side that goes with almost anything.
+  meal_type: side
+  difficulty: easy
+  servings: 4
+  prep_minutes: 5
+  cook_minutes: 10
+  steps:
+    - Boil the green beans in salted water for 4 minutes, then drain.
+    - Heat the butter and oil in a skillet over medium heat. Add the garlic and cook for 1 minute.
+    - Add the beans, salt and pepper and toss for 2 to 3 minutes.
+  ingredients:
+    - {name: green beans, quantity: 1, unit: lb, note: "trimmed"}
+    - {name: butter, quantity: 1, unit: tbsp}
+    - {name: olive oil, quantity: 1, unit: tbsp}
+    - {name: garlic, quantity: 3, unit: clove, note: "sliced"}
+    - {name: salt, quantity: 0.5, unit: tsp}
+    - {name: black pepper, quantity: 0.25, unit: tsp}
+
+- title: Banana Bread
+  description: The best use for overripe bananas.
+  meal_type: dessert
+  difficulty: easy
+  servings: 10
+  prep_minutes: 15
+  cook_minutes: 60
+  steps:
+    - Heat the oven to 350°F (175°C) and grease a 9x5-inch loaf pan.
+    - Mix the mashed bananas and melted butter, then stir in the sugar, egg and vanilla.
+    - Sprinkle the baking soda and salt over the mixture and stir, then mix in the flour until just combined.
+    - Pour into the pan and bake for 55 to 65 minutes, until a toothpick comes out clean. Cool before slicing.
+  ingredients:
+    - {name: banana, quantity: 3, unit: each, note: "very ripe, mashed"}
+    - {name: butter, quantity: 0.33, unit: cup, note: "melted"}
+    - {name: sugar, quantity: 0.75, unit: cup}
+    - {name: eggs, quantity: 1, unit: each}
+    - {name: vanilla extract, quantity: 1, unit: tsp}
+    - {name: baking soda, quantity: 1, unit: tsp}
+    - {name: salt, quantity: 0.25, unit: tsp}
+    - {name: all-purpose flour, quantity: 1.5, unit: cup}

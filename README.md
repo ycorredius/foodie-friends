@@ -14,6 +14,10 @@ bin/setup     # installs gems, prepares the database, starts the server
 bin/dev       # later runs: Rails server + Tailwind watcher
 ```
 
+### Seed data
+
+`bin/rails db:seed` loads the ingredient catalog (`db/seeds/ingredients.yml`) and starter recipes (`db/seeds/recipes.yml`). It's safe to re-run anywhere, including production. `bin/setup` and `db:prepare` only seed a newly created database. In development it also creates a login: `demo@example.com` / `password123`.
+
 ## Tests and checks
 
 ```bash

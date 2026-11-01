@@ -39,7 +39,7 @@ Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-da
 - [ ] Recipe photos via Active Storage direct uploads (needs a storage provider: S3 or Google Cloud Storage)
 - [ ] Email delivery in production (password reset)
 - [ ] Account deletion
-- [ ] Seed recipes and ingredient categories
+- [x] Seed recipes and ingredient categories
 
 ### Phase 2: Social and discovery
 

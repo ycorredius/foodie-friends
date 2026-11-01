@@ -1,0 +1,108 @@
+# Common ingredients by grocery category (see Ingredient.categories).
+# Names are lowercase and singular/plural as a shopper would write them.
+produce:
+  - apples
+  - avocado
+  - banana
+  - bell pepper
+  - broccoli
+  - carrots
+  - celery
+  - cilantro
+  - cucumber
+  - garlic
+  - ginger
+  - green beans
+  - green onions
+  - lemon
+  - lettuce
+  - limes
+  - mushrooms
+  - potatoes
+  - red onion
+  - spinach
+  - sweet potatoes
+  - tomatoes
+  - yellow onion
+  - zucchini
+meat_seafood:
+  - bacon
+  - chicken breast
+  - chicken thighs
+  - ground beef
+  - ground turkey
+  - pork chops
+  - salmon
+  - shrimp
+dairy_eggs:
+  - butter
+  - cheddar cheese
+  - cream cheese
+  - eggs
+  - heavy cream
+  - milk
+  - mozzarella cheese
+  - parmesan cheese
+  - plain yogurt
+  - sour cream
+bakery:
+  - hamburger buns
+  - sandwich bread
+  - tortillas
+pantry:
+  - all-purpose flour
+  - apple cider vinegar
+  - baking powder
+  - baking soda
+  - black beans
+  - bread crumbs
+  - brown sugar
+  - canned tuna
+  - chicken broth
+  - chickpeas
+  - crushed tomatoes
+  - diced tomatoes
+  - dijon mustard
+  - honey
+  - ketchup
+  - kidney beans
+  - lentils
+  - maple syrup
+  - mayonnaise
+  - olive oil
+  - peanut butter
+  - rolled oats
+  - salsa
+  - sesame oil
+  - soy sauce
+  - spaghetti
+  - sugar
+  - tomato paste
+  - vanilla extract
+  - vegetable broth
+  - vegetable oil
+  - white rice
+  - white vinegar
+spices:
+  - black pepper
+  - chili powder
+  - dried basil
+  - dried oregano
+  - dried thyme
+  - garlic powder
+  - ground cinnamon
+  - ground cumin
+  - italian seasoning
+  - onion powder
+  - paprika
+  - red pepper flakes
+  - salt
+frozen_foods:
+  - frozen berries
+  - frozen broccoli
+  - frozen corn
+  - frozen peas and carrots
+beverages:
+  - coffee
+  - orange juice
+  - tea
