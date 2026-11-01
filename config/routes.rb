@@ -13,13 +13,17 @@ Rails.application.routes.draw do
           post :approve, on: :member
         end
         resources :followers, only: :destroy
+        resources :saved_recipes, only: :index
       end
       resources :users, only: %i[index show] do
         resource :follow, only: %i[create destroy]
         resources :followers, only: :index
         resources :following, only: :index
       end
-      resources :recipes, except: %i[new edit]
+      resources :recipes, except: %i[new edit] do
+        resource :save, only: %i[create destroy]
+        resource :fork, only: :create
+      end
       resource :feed, only: :show
       resources :direct_uploads, only: :create
     end

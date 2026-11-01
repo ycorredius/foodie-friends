@@ -55,6 +55,7 @@ RSpec.describe "API recipe photos", type: :request do
       photo_json = response.parsed_body["photo"]
       expect(photo_json["thumbnail_url"]).to include("/rails/active_storage/representations/")
       expect(photo_json["url"]).to include("/rails/active_storage/representations/")
+      expect(photo_json["default"]).to be(false)
     end
 
     it "shows photos to other users" do
@@ -74,7 +75,7 @@ RSpec.describe "API recipe photos", type: :request do
       expect(recipe.reload.photo.blob).not_to eq(first_blob)
 
       patch api_v1_recipe_path(recipe), params: {recipe: {photo: nil}}, headers: headers, as: :json
-      expect(response.parsed_body["photo"]).to be_nil
+      expect(response.parsed_body["photo"]).to include("default" => true)
       expect(recipe.reload.photo).not_to be_attached
     end
 
