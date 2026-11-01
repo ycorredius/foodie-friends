@@ -28,9 +28,20 @@ class Api::V1::BaseController < ActionController::API
     Current.session = user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip)
   end
 
-  # One page of the scope, newest first. Views render @pagy.next as `next_page`.
+  # One page of the scope, newest first (keyset pagination). Sets @next_page,
+  # which views render as `next_page` and clients send back as `page`.
   def paginate(scope)
     @pagy, records = pagy(:keyset, scope.reorder(id: :desc))
+    @next_page = @pagy.next
+    records
+  end
+
+  # One page of an already-ordered scope by page number. For orders keyset
+  # pagination can't follow, like counts computed at query time. Clients use
+  # it the same way: `next_page` is an opaque token either way.
+  def paginate_by_page(scope)
+    @pagy, records = pagy(:countless, scope)
+    @next_page = @pagy.next&.to_s
     records
   end
 

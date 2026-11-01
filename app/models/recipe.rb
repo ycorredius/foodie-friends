@@ -3,8 +3,14 @@ class Recipe < ApplicationRecord
   PHOTO_MAX_BYTES = 10.megabytes
   MAX_TAGS = 10
   MAX_TAG_LENGTH = 30
+  # Copied when forking. The photo isn't copied: it belongs to the original author.
+  FORKED_ATTRIBUTES = %w[title description steps servings prep_minutes cook_minutes meal_type difficulty tags].freeze
+  # Time windows for sorting by popularity; nil counts all saves (Recipe#saves_count).
+  POPULARITY_PERIODS = {"week" => 1.week, "month" => 1.month, "year" => 1.year, "all" => nil}.freeze
 
   belongs_to :user
+  belongs_to :forked_from, class_name: "Recipe", optional: true
+  has_many :saved_recipes, dependent: :destroy
   has_one_attached :photo do |attachable|
     attachable.variant :thumb, resize_to_limit: [400, 400]
     attachable.variant :large, resize_to_limit: [1200, 1200]
@@ -53,6 +59,30 @@ class Recipe < ApplicationRecord
     where("(recipes.prep_minutes IS NOT NULL OR recipes.cook_minutes IS NOT NULL) AND " \
           "COALESCE(recipes.prep_minutes, 0) + COALESCE(recipes.cook_minutes, 0) <= ?", minutes)
   }
+
+  # Most saved first, newest first among ties. With a period (e.g. 1.week),
+  # only saves made within it count.
+  scope :by_popularity, ->(period = nil) {
+    if period
+      counts = SavedRecipe.where(created_at: period.ago..).group(:recipe_id).select(:recipe_id, "COUNT(*) AS saves")
+      joins("LEFT JOIN (#{counts.to_sql}) period_saves ON period_saves.recipe_id = recipes.id")
+        .reorder(Arel.sql("COALESCE(period_saves.saves, 0) DESC"), id: :desc)
+    else
+      reorder(saves_count: :desc, id: :desc)
+    end
+  }
+
+  # An unsaved copy of this recipe owned by the user, linked back to it. It
+  # starts as "only me" so the user can adapt it before sharing.
+  def fork_for(user)
+    user.recipes.new(attributes.slice(*FORKED_ATTRIBUTES)).tap do |fork|
+      fork.forked_from = self
+      fork.visibility = :only_me
+      fork.ingredient_lines = recipe_ingredients.map do |line|
+        {name: line.name, quantity: line.quantity, unit: line.unit, note: line.note}
+      end
+    end
+  end
 
   def total_minutes
     (prep_minutes || 0) + (cook_minutes || 0) if prep_minutes || cook_minutes

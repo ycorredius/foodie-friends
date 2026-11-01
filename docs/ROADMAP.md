@@ -42,7 +42,7 @@ Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-da
 - [x] Account deletion: deactivate, reactivate on sign-in, permanently delete after 30 days ([#35](https://github.com/ycorredius/foodie-friends/pull/35))
 - [x] Recipe photos via Active Storage direct uploads, stored on local disk for now
 
-### Phase 2: Social and discovery
+### Phase 2: Social and discovery ✅
 
 - [x] Public/private profile setting; user profiles
 - [x] Follow and unfollow; follow requests with approve, decline, and remove follower
@@ -50,8 +50,9 @@ Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-da
 - [x] Recipe visibility follows profile privacy (recipe lists, recipe pages, profiles)
 - [x] Feed of recipes from people you follow; Explore (newest)
 - [x] Search with filters (meal type, difficulty, total time, tags), using Postgres full-text search; recipe tags; find people by name
-- [ ] Explore sorted by popularity (needs saves)
-- [ ] Save recipes; copy ("fork") a recipe to adapt it
+- [x] Explore sorted by popularity, by week, month, year or all time
+- [x] Save recipes; copy ("fork") a recipe to adapt it
+- [x] Default placeholder image for recipes without a photo
 
 ### Phase 3: Meal planning
 

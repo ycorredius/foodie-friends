@@ -13,7 +13,8 @@ class Api::V1::RecipesController < Api::V1::BaseController
     search = RecipeSearch.new(params)
     return render json: {errors: search.errors}, status: :unprocessable_entity unless search.valid?
 
-    @recipes = paginate(search.apply(Recipe.visible_to(Current.user)).includes(:user).with_attached_photo)
+    scope = search.apply(Recipe.visible_to(Current.user)).includes(:user).with_attached_photo
+    @recipes = search.popular? ? paginate_by_page(scope) : paginate(scope)
   end
 
   # Pass `servings` to scale ingredient quantities.

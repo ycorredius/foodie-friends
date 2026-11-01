@@ -30,7 +30,7 @@ bin/ci          # everything CI runs
 
 All endpoints are under `/api/v1` and speak JSON. Authenticated endpoints take `Authorization: Bearer <token>`. Tokens expire after 30 days without use.
 
-List endpoints return newest first, 20 items by default. Pass `limit` (max 50) for a different page size, and pass the previous response's `next_page` token as `page` to get the next page; `next_page` is `null` on the last page.
+List endpoints return newest first unless noted, 20 items by default. Pass `limit` (max 50) for a different page size, and pass the previous response's `next_page` as `page` to get the next page; `next_page` is `null` on the last page. Treat `next_page` as an opaque string.
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
@@ -41,6 +41,10 @@ List endpoints return newest first, 20 items by default. Pass `limit` (max 50) f
 | `PATCH` | `/api/v1/me` | ✓ | Update `{user: {first_name, last_name, unit_system, private_profile}}`. `unit_system` is `us_customary` (default) or `metric`. Making a profile public approves pending follow requests. |
 | `DELETE` | `/api/v1/me` | ✓ | Delete your account. Body: `{password}`. Deactivates it and signs out everywhere; returns `{deletes_at}`. Signing in before then reactivates it; after 30 days it's deleted permanently. Rate limited. |
 | `GET` | `/api/v1/recipes` | ✓ | Explore: recipes visible to you, with optional search and filters (below). Returns `{recipes, next_page}`. |
+| `POST` | `/api/v1/recipes/:id/save` | ✓ | Save a recipe you can see. Returns `{saved, saves_count}`. |
+| `DELETE` | `/api/v1/recipes/:id/save` | ✓ | Unsave. |
+| `GET` | `/api/v1/me/saved_recipes` | ✓ | Your saved recipes, most recently saved first; ones that became hidden from you are left out. Returns `{recipes, next_page}`. |
+| `POST` | `/api/v1/recipes/:id/fork` | ✓ | Copy a recipe you can see into your recipes, as `only_me`, to adapt it. The photo isn't copied. Returns the new recipe, with `forked_from`. |
 | `GET` | `/api/v1/feed` | ✓ | Public recipes from people you follow (not your own). Returns `{recipes, next_page}`. |
 | `GET` | `/api/v1/recipes/:id` | ✓ | A recipe with steps and ingredients. Optional `servings` scales quantities. |
 | `POST` | `/api/v1/recipes` | ✓ | Create. Body below. |
@@ -81,6 +85,7 @@ List endpoints return newest first, 20 items by default. Pass `limit` (max 50) f
   - `max_total_minutes`: prep + cook time at most this long. Recipes with no times are excluded.
   - `tags`: recipes with all of these tags, as an array or comma-separated (`tags=vegetarian,quick`).
   - `user_id`: recipes by one author.
+  - `sort`: `newest` (default) or `popular` (most saved). With `popular`, `period` is `week`, `month`, `year` or `all` (default) and counts only saves within it. Popular results can shift between pages as saves change.
 
   Invalid values return `422`. Results are newest first.
 - `unit`: g, kg, oz, lb, ml, l, tsp, tbsp, fl_oz, cup, pint, quart, gallon, or a count unit (each, clove, slice, can, package, bunch, sprig, stick, pinch, dash). Quantity and unit may both be omitted.
@@ -95,7 +100,9 @@ Photos are JPEG, PNG or WebP, up to 10 MB. Attaching one takes three steps:
 2. `PUT` the raw file bytes to the returned `direct_upload.url`, sending `direct_upload.headers`.
 3. Send the returned `signed_id` as `recipe.photo` when creating or updating a recipe. Send `"photo": null` to remove the photo.
 
-You can only attach photos you uploaded yourself, and each upload can be attached to one recipe. Uploads that are never attached are deleted after a day. Recipe responses include `photo: {thumbnail_url, url}` (400px and 1200px versions), or `null`.
+You can only attach photos you uploaded yourself, and each upload can be attached to one recipe. Uploads that are never attached are deleted after a day. Recipe responses always include `photo: {thumbnail_url, url, default}` (400px and 1200px versions). Recipes without a photo get a placeholder image with `default: true`.
+
+Recipe responses also include `saves_count` and `saved` (whether you saved it). A recipe's detail view includes `forked_from: {id, title, author}` when it's a copy of a recipe you can still see, otherwise `null`.
 
 ## Deployment
 
