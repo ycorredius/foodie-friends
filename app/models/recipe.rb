@@ -1,5 +1,12 @@
 class Recipe < ApplicationRecord
+  PHOTO_CONTENT_TYPES = %w[image/jpeg image/png image/webp].freeze
+  PHOTO_MAX_BYTES = 10.megabytes
+
   belongs_to :user
+  has_one_attached :photo do |attachable|
+    attachable.variant :thumb, resize_to_limit: [400, 400]
+    attachable.variant :large, resize_to_limit: [1200, 1200]
+  end
   # Lines are validated by ingredient_lines_are_valid, which reports errors by
   # position in the submitted list rather than in the association.
   has_many :recipe_ingredients, -> { order(:position) }, dependent: :destroy, autosave: true, validate: false
@@ -15,6 +22,7 @@ class Recipe < ApplicationRecord
   validates :prep_minutes, :cook_minutes, numericality: {only_integer: true, greater_than_or_equal_to: 0}, allow_nil: true
   validate :steps_are_present_strings
   validate :ingredient_lines_are_valid
+  validate :photo_is_an_acceptable_image
 
   # Recipes the user may view: public recipes by active users, plus their own.
   # Phase 2 extends this to followers of private profiles.
@@ -43,6 +51,13 @@ class Recipe < ApplicationRecord
 
       line.errors.each { |error| errors.add(:"ingredients[#{index}].#{error.attribute}", error.message) }
     end
+  end
+
+  def photo_is_an_acceptable_image
+    return unless photo.attached?
+
+    errors.add(:photo, "must be a JPEG, PNG or WebP image") unless photo.blob.content_type.in?(PHOTO_CONTENT_TYPES)
+    errors.add(:photo, "must be 10 MB or smaller") if photo.blob.byte_size > PHOTO_MAX_BYTES
   end
 
   def steps_are_present_strings
