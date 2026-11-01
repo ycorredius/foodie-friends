@@ -34,7 +34,9 @@ Tests are RSpec + FactoryBot (`spec/`); there is no Minitest `test/` directory. 
 - Password reset destroys all of a user's sessions, which revokes API tokens too.
 - `Current.session` / `Current.user` hold the authenticated session/user in both stacks. Web controllers require auth by default (`allow_unauthenticated_access` to opt out); API controllers likewise via their own `allow_unauthenticated_access`.
 
-**JSON API** lives under `Api::V1` (`config/routes.rb` `namespace :api`), rendered with jbuilder views in `app/views/api/v1/`.
+**JSON API** lives under `Api::V1` (`config/routes.rb` `namespace :api`), rendered with jbuilder views in `app/views/api/v1/`. New features are API-only for now (no new web pages). `Api::V1::BaseController` turns `RecordNotFound` into a JSON 404; scope lookups through `Current.user` (`Current.user.recipes.find`) or `Recipe.visible_to(Current.user)` so other users' records 404. Lists use cursor pagination (`before` + `next_cursor`), not page numbers.
+
+**Recipes and units.** `Recipe` has many ordered `RecipeIngredient` lines, each pointing at a shared `Ingredient` catalog entry found or created by normalized name. `Recipe#ingredient_lines=` replaces all lines; the association uses `validate: false` because `ingredient_lines_are_valid` validates lines itself so errors are keyed by position in the submitted list (`ingredients[1].unit`). Units are defined in code (`app/models/unit.rb`), not the database: quantities are stored as the author wrote them, and `Unit.convert` scales and converts weight/volume into the reader's `User#unit_system` at render time. Count units are never converted.
 
 **Single database.** Render provides one Postgres database, so Solid Cache, Solid Queue and Solid Cable all live in the primary DB: their tables come from regular migrations in `db/migrate` (not `db/*_schema.rb`), and nothing uses `connects_to`. Keep it that way when upgrading these gems — new Solid* schema changes must be added as migrations. In production Solid Queue runs inside Puma (`SOLID_QUEUE_IN_PUMA`).
 

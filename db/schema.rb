@@ -10,9 +10,47 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_01_125039) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_01_150003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "ingredients", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "category", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_ingredients_on_name", unique: true
+  end
+
+  create_table "recipe_ingredients", force: :cascade do |t|
+    t.bigint "recipe_id", null: false
+    t.bigint "ingredient_id", null: false
+    t.decimal "quantity", precision: 10, scale: 3
+    t.string "unit"
+    t.string "note"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ingredient_id"], name: "index_recipe_ingredients_on_ingredient_id"
+    t.index ["recipe_id"], name: "index_recipe_ingredients_on_recipe_id"
+  end
+
+  create_table "recipes", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.text "steps", default: [], null: false, array: true
+    t.integer "servings", null: false
+    t.integer "prep_minutes"
+    t.integer "cook_minutes"
+    t.integer "meal_type"
+    t.integer "difficulty"
+    t.integer "visibility", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_recipes_on_user_id"
+    t.index ["visibility", "id"], name: "index_recipes_on_visibility_and_id"
+  end
 
   create_table "sessions", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -203,9 +241,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_125039) do
     t.string "last_name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "unit_system", default: 0, null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "recipe_ingredients", "ingredients"
+  add_foreign_key "recipe_ingredients", "recipes"
+  add_foreign_key "recipes", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

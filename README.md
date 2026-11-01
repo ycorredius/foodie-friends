@@ -32,6 +32,32 @@ All endpoints are under `/api/v1` and speak JSON. Authenticated endpoints take `
 | `POST` | `/api/v1/session` | — | Sign in. Body: `{email_address, password}`. Returns `{token, user}`. Rate limited. |
 | `DELETE` | `/api/v1/session` | ✓ | Sign out (revokes the token used). |
 | `GET` | `/api/v1/me` | ✓ | The current user. |
+| `PATCH` | `/api/v1/me` | ✓ | Update `{user: {first_name, last_name, unit_system}}`. `unit_system` is `us_customary` (default) or `metric`. |
+| `GET` | `/api/v1/recipes` | ✓ | Recipes visible to you, newest first. Params: `limit` (max 50), `before` (the previous page's `next_cursor`), `user_id`. Returns `{recipes, next_cursor}`. |
+| `GET` | `/api/v1/recipes/:id` | ✓ | A recipe with steps and ingredients. Optional `servings` scales quantities. |
+| `POST` | `/api/v1/recipes` | ✓ | Create. Body below. |
+| `PATCH` | `/api/v1/recipes/:id` | ✓ | Update your recipe. Sending `ingredients` replaces all ingredient lines. |
+| `DELETE` | `/api/v1/recipes/:id` | ✓ | Delete your recipe. |
+
+### Recipes
+
+```json
+{"recipe": {
+  "title": "Pancakes", "description": "Fluffy.", "servings": 4,
+  "prep_minutes": 10, "cook_minutes": 15,
+  "meal_type": "breakfast", "difficulty": "easy", "visibility": "public",
+  "steps": ["Mix.", "Cook."],
+  "ingredients": [
+    {"name": "flour", "quantity": 2, "unit": "cup", "note": "sifted"},
+    {"name": "salt", "note": "to taste"}
+  ]
+}}
+```
+
+- `meal_type`: breakfast, lunch, dinner, snack, dessert, appetizer, side, drink. `difficulty`: easy, medium, hard. `visibility`: public, only_me.
+- `unit`: g, kg, oz, lb, ml, l, tsp, tbsp, fl_oz, cup, pint, quart, gallon, or a count unit (each, clove, slice, can, package, bunch, sprig, stick, pinch, dash). Quantity and unit may both be omitted.
+- Responses convert weights and volumes to the reader's `unit_system` and scale to the requested `servings`; each ingredient's `original` holds the amount as written. Count units are scaled but never converted.
+- Validation errors return `422` with `{errors: {field: [messages]}}`; ingredient errors are keyed by position, e.g. `ingredients[1].unit`.
 
 ## Deployment
 

@@ -1,6 +1,10 @@
 class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
+  has_many :recipes, dependent: :destroy
+
+  # Recipe quantities are shown to the user in this system.
+  enum :unit_system, {us_customary: 0, metric: 1}, validate: true
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
