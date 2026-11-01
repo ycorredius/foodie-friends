@@ -1,4 +1,4 @@
-# Solid Cable shares the primary database (Render provides one), so its
+# Solid Cable shares the primary database, so its
 # tables come from this migration instead of db/cable_schema.rb.
 class CreateSolidCableTables < ActiveRecord::Migration[8.1]
   def change

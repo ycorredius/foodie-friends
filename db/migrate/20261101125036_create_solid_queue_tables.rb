@@ -1,4 +1,4 @@
-# Solid Queue shares the primary database (Render provides one), so its
+# Solid Queue shares the primary database, so its
 # tables come from this migration instead of db/queue_schema.rb.
 class CreateSolidQueueTables < ActiveRecord::Migration[8.1]
   def change

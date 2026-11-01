@@ -29,7 +29,7 @@ Foodie Friends is a place for families to discover meal ideas, plan their week, 
 
 ### Phase 0: Foundation ✅
 
-Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-day sliding expiry), Solid Cache/Queue/Cable in a single database, Render deployment, CI. ([#29](https://github.com/ycorredius/foodie-friends/pull/29))
+Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-day sliding expiry), Solid Cache/Queue/Cable in a single database, CI. ([#29](https://github.com/ycorredius/foodie-friends/pull/29))
 
 ### Phase 1: Recipes (in progress)
 

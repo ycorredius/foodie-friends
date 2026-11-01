@@ -1,4 +1,4 @@
-# Solid Cache shares the primary database (Render provides one), so its
+# Solid Cache shares the primary database, so its
 # tables come from this migration instead of db/cache_schema.rb.
 class CreateSolidCacheTables < ActiveRecord::Migration[8.1]
   def change
