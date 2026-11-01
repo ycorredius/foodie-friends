@@ -2,6 +2,7 @@
 # session token sent as "Authorization: Bearer <token>" instead of a cookie.
 class Api::V1::BaseController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
+  include Pagy::Method
 
   before_action :require_authentication
 
@@ -25,6 +26,16 @@ class Api::V1::BaseController < ActionController::API
 
   def start_new_session_for(user)
     Current.session = user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip)
+  end
+
+  # One page of the scope, newest first. Views render @pagy.next as `next_page`.
+  def paginate(scope)
+    @pagy, records = pagy(:keyset, scope.reorder(id: :desc))
+    records
+  end
+
+  def render_private_profile
+    render json: {error: "This profile is private"}, status: :forbidden
   end
 
   def render_rate_limited
