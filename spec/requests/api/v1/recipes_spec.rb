@@ -31,7 +31,8 @@ RSpec.describe "API recipes", type: :request do
       body = response.parsed_body
       expect(body).to include("title" => "Pancakes", "servings" => 4, "total_minutes" => 25,
         "meal_type" => "breakfast", "visibility" => "public", "steps" => ["Mix.", "Cook."])
-      expect(body["author"]).to eq("id" => user.id, "first_name" => user.first_name, "last_name" => user.last_name)
+      expect(body["author"]).to eq("id" => user.id, "first_name" => user.first_name, "last_name" => user.last_name,
+        "private_profile" => false)
       expect(body["ingredients"].map { |i| i["name"] }).to eq(%w[flour milk eggs salt])
       expect(body["ingredients"].last).to include("quantity" => nil, "unit" => nil, "note" => "a pinch")
     end
@@ -101,22 +102,36 @@ RSpec.describe "API recipes", type: :request do
 
       get api_v1_recipes_path, headers: headers
       expect(response.parsed_body["recipes"].map { |r| r["id"] }).to eq([own_private.id, older.id])
-      expect(response.parsed_body["next_cursor"]).to be_nil
+      expect(response.parsed_body["next_page"]).to be_nil
     end
 
-    it "paginates with a cursor" do
+    it "paginates with next_page tokens" do
       recipes = create_list(:recipe, 5, user: other_user)
 
       get api_v1_recipes_path(limit: 2), headers: headers
       first_page = response.parsed_body
       expect(first_page["recipes"].map { |r| r["id"] }).to eq(recipes.last(2).reverse.map(&:id))
 
-      get api_v1_recipes_path(limit: 2, before: first_page["next_cursor"]), headers: headers
+      get api_v1_recipes_path(limit: 2, page: first_page["next_page"]), headers: headers
       expect(response.parsed_body["recipes"].map { |r| r["id"] }).to eq(recipes[1..2].reverse.map(&:id))
 
-      get api_v1_recipes_path(limit: 2, before: response.parsed_body["next_cursor"]), headers: headers
+      get api_v1_recipes_path(limit: 2, page: response.parsed_body["next_page"]), headers: headers
       expect(response.parsed_body["recipes"].map { |r| r["id"] }).to eq([recipes.first.id])
-      expect(response.parsed_body["next_cursor"]).to be_nil
+      expect(response.parsed_body["next_page"]).to be_nil
+    end
+
+    it "caps limit at 50" do
+      create_list(:recipe, 51, user: other_user)
+      get api_v1_recipes_path(limit: 500), headers: headers
+      expect(response.parsed_body["recipes"].size).to eq(50)
+      expect(response.parsed_body["next_page"]).to be_present
+    end
+
+    it "falls back to the first page for an invalid token" do
+      recipe = create(:recipe, user: other_user)
+      get api_v1_recipes_path(page: "garbage"), headers: headers
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body["recipes"].map { |r| r["id"] }).to eq([recipe.id])
     end
 
     it "filters by author" do

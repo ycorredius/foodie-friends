@@ -53,6 +53,21 @@ RSpec.describe Recipe, type: :model do
       recipe.user.deactivate!
       expect(Recipe.visible_to(create(:user))).not_to include(recipe)
     end
+
+    it "shows a private profile's public recipes only to approved followers and the author" do
+      author = create(:user, private_profile: true)
+      recipe = create(:recipe, user: author)
+      only_me = create(:recipe, :only_me, user: author)
+      follower = create(:user)
+      requester = create(:user)
+      follower.follow(author).accept!
+      requester.follow(author)
+
+      expect(Recipe.visible_to(follower)).to contain_exactly(recipe)
+      expect(Recipe.visible_to(requester)).to be_empty
+      expect(Recipe.visible_to(create(:user))).to be_empty
+      expect(Recipe.visible_to(author)).to contain_exactly(recipe, only_me)
+    end
   end
 
   describe "#ingredient_lines=" do

@@ -24,9 +24,11 @@ class Recipe < ApplicationRecord
   validate :ingredient_lines_are_valid
   validate :photo_is_an_acceptable_image
 
-  # Recipes the user may view: public recipes by active users, plus their own.
-  # Phase 2 extends this to followers of private profiles.
-  scope :visible_to, ->(user) { visibility_public.where(user_id: User.active.select(:id)).or(where(user: user)) }
+  # Recipes the user may view: their own, plus public recipes by active users
+  # whose profile is public or who the user follows.
+  scope :visible_to, ->(user) {
+    visibility_public.where(user_id: User.content_visible_to(user).select(:id)).or(where(user: user))
+  }
 
   def total_minutes
     (prep_minutes || 0) + (cook_minutes || 0) if prep_minutes || cook_minutes

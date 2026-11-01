@@ -1,7 +1,4 @@
 class Api::V1::RecipesController < Api::V1::BaseController
-  PAGE_SIZE = 20
-  MAX_PAGE_SIZE = 50
-
   class InvalidPhoto < StandardError; end
 
   before_action :set_own_recipe, only: %i[update destroy]
@@ -10,17 +7,11 @@ class Api::V1::RecipesController < Api::V1::BaseController
     render json: {errors: {photo: ["is invalid"]}}, status: :unprocessable_entity
   end
 
-  # Recipes visible to the current user, newest first. Paginate by passing the
-  # response's next_cursor as `before`. Filter to one author with `user_id`.
+  # Recipes visible to the current user, newest first. Filter to one author with `user_id`.
   def index
-    scope = Recipe.visible_to(Current.user).includes(:user).with_attached_photo.order(id: :desc)
+    scope = Recipe.visible_to(Current.user).includes(:user).with_attached_photo
     scope = scope.where(user_id: params[:user_id]) if params[:user_id].present?
-    scope = scope.where(id: ...params[:before].to_i) if params[:before].present?
-
-    limit = params.fetch(:limit, PAGE_SIZE).to_i.clamp(1, MAX_PAGE_SIZE)
-    recipes = scope.limit(limit + 1).to_a
-    @next_cursor = recipes[limit - 1].id if recipes.size > limit
-    @recipes = recipes.first(limit)
+    @recipes = paginate(scope)
   end
 
   # Pass `servings` to scale ingredient quantities.

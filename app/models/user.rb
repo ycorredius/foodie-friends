@@ -8,6 +8,14 @@ class User < ApplicationRecord
   has_many :sessions, dependent: :destroy
   has_many :recipes, dependent: :destroy
 
+  has_many :follows_given, class_name: "Follow", foreign_key: :follower_id, dependent: :destroy, inverse_of: :follower
+  has_many :follows_received, class_name: "Follow", foreign_key: :followed_id, dependent: :destroy, inverse_of: :followed
+  has_many :following, -> { merge(Follow.accepted) }, through: :follows_given, source: :followed
+  has_many :followers, -> { merge(Follow.accepted) }, through: :follows_received, source: :follower
+
+  # Making a profile public approves its pending follow requests.
+  after_update :approve_pending_follow_requests, if: -> { saved_change_to_private_profile?(to: false) }
+
   # Recipe quantities are shown to the user in this system.
   enum :unit_system, {us_customary: 0, metric: 1}, validate: true
 
@@ -20,12 +28,40 @@ class User < ApplicationRecord
   scope :active, -> { where(deactivated_at: nil) }
   scope :due_for_deletion, -> { where(deactivated_at: ..DELETION_GRACE_PERIOD.ago) }
 
+  # Active users whose profile content (recipes, follower lists) the viewer may
+  # see: public profiles, plus private profiles the viewer follows.
+  def self.content_visible_to(viewer)
+    active.where(private_profile: false).or(active.where(id: viewer.follows_given.accepted.select(:followed_id)))
+  end
+
   def full_name
     "#{first_name} #{last_name}"
   end
 
   def deactivated?
     deactivated_at.present?
+  end
+
+  # Follows the user, or requests to if their profile is private. Returns the
+  # Follow; following someone twice returns the existing one.
+  def follow(user)
+    follows_given.find_or_create_by!(followed: user) do |follow|
+      follow.status = user.private_profile? ? :pending : :accepted
+    end
+  end
+
+  # Unfollows the user, or cancels a pending request.
+  def unfollow(user)
+    follows_given.where(followed: user).destroy_all
+  end
+
+  def following?(user)
+    follows_given.accepted.exists?(followed: user)
+  end
+
+  # Whether the viewer may see this user's profile content.
+  def content_visible_to?(viewer)
+    !private_profile? || viewer == self || viewer.following?(self)
   end
 
   def deactivate!
@@ -45,5 +81,11 @@ class User < ApplicationRecord
 
   def deletes_at
     deactivated_at + DELETION_GRACE_PERIOD if deactivated?
+  end
+
+  private
+
+  def approve_pending_follow_requests
+    follows_received.pending.update_all(status: Follow.statuses[:accepted], updated_at: Time.current)
   end
 end

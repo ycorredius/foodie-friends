@@ -30,19 +30,29 @@ bin/ci          # everything CI runs
 
 All endpoints are under `/api/v1` and speak JSON. Authenticated endpoints take `Authorization: Bearer <token>`. Tokens expire after 30 days without use.
 
+List endpoints return newest first, 20 items by default. Pass `limit` (max 50) for a different page size, and pass the previous response's `next_page` token as `page` to get the next page; `next_page` is `null` on the last page.
+
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | `POST` | `/api/v1/registration` | — | Sign up. Body: `{user: {first_name, last_name, email_address, password, password_confirmation}}`. Returns `{token, user}`. |
 | `POST` | `/api/v1/session` | — | Sign in. Body: `{email_address, password}`. Returns `{token, reactivated, user}`; `reactivated` is true when signing in restored a deactivated account. Rate limited. |
 | `DELETE` | `/api/v1/session` | ✓ | Sign out (revokes the token used). |
 | `GET` | `/api/v1/me` | ✓ | The current user. |
-| `PATCH` | `/api/v1/me` | ✓ | Update `{user: {first_name, last_name, unit_system}}`. `unit_system` is `us_customary` (default) or `metric`. |
+| `PATCH` | `/api/v1/me` | ✓ | Update `{user: {first_name, last_name, unit_system, private_profile}}`. `unit_system` is `us_customary` (default) or `metric`. Making a profile public approves pending follow requests. |
 | `DELETE` | `/api/v1/me` | ✓ | Delete your account. Body: `{password}`. Deactivates it and signs out everywhere; returns `{deletes_at}`. Signing in before then reactivates it; after 30 days it's deleted permanently. Rate limited. |
-| `GET` | `/api/v1/recipes` | ✓ | Recipes visible to you, newest first. Params: `limit` (max 50), `before` (the previous page's `next_cursor`), `user_id`. Returns `{recipes, next_cursor}`. |
+| `GET` | `/api/v1/recipes` | ✓ | Recipes visible to you. Optional `user_id` filter. Returns `{recipes, next_page}`. |
 | `GET` | `/api/v1/recipes/:id` | ✓ | A recipe with steps and ingredients. Optional `servings` scales quantities. |
 | `POST` | `/api/v1/recipes` | ✓ | Create. Body below. |
 | `PATCH` | `/api/v1/recipes/:id` | ✓ | Update your recipe. Sending `ingredients` replaces all ingredient lines. |
 | `DELETE` | `/api/v1/recipes/:id` | ✓ | Delete your recipe. |
+| `GET` | `/api/v1/users/:id` | ✓ | A profile: `id`, names, `private_profile`, `followers_count`, `following_count`, `recipes_count` (visible to you), `follow_status` (`accepted`, `pending` or `null`), `follows_you`. |
+| `POST` | `/api/v1/users/:id/follow` | ✓ | Follow, or request to follow a private profile. Returns `{status}`: `accepted` or `pending`. |
+| `DELETE` | `/api/v1/users/:id/follow` | ✓ | Unfollow, or cancel a pending request. |
+| `GET` | `/api/v1/users/:id/followers`, `/following` | ✓ | Returns `{users, next_page}`. A private profile's lists are `403` unless you're an approved follower. |
+| `GET` | `/api/v1/me/follow_requests` | ✓ | Users who requested to follow you. Returns `{users, next_page}`. |
+| `POST` | `/api/v1/me/follow_requests/:user_id/approve` | ✓ | Approve a request. |
+| `DELETE` | `/api/v1/me/follow_requests/:user_id` | ✓ | Decline a request. |
+| `DELETE` | `/api/v1/me/followers/:user_id` | ✓ | Remove a follower. |
 | `POST` | `/api/v1/direct_uploads` | ✓ | Start a photo upload. Body: `{blob: {filename, byte_size, checksum, content_type}}`. Returns `{signed_id, direct_upload: {url, headers}}`. Rate limited. |
 
 ### Recipes

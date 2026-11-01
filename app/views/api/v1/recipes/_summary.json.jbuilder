@@ -9,5 +9,5 @@ else
   json.photo nil
 end
 json.author do
-  json.partial! "api/v1/users/author", user: recipe.user
+  json.partial! "api/v1/users/summary", user: recipe.user
 end

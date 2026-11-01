@@ -10,7 +10,7 @@ Foodie Friends is a place for families to discover meal ideas, plan their week, 
 - **Households.** Every user gets a household of one at sign-up. Meal plans and grocery lists belong to the household from the start, so inviting family members later doesn't change how data is stored.
 - **Units are a user preference.** Users choose `us_customary` (default) or `metric`. Recipes store quantities as the author wrote them; the server scales and converts weight and volume for each reader. Count units ("2 eggs") are never converted.
 - **Pricing is stored, not used.** Grocery items can record prices, but there are no budgeting features yet.
-- **Lists use cursor pagination** (`before` + `next_cursor`), which suits infinite scroll on mobile.
+- **Lists use keyset pagination** via the Pagy gem (`page` token in, `next_page` out), which suits infinite scroll on mobile.
 - **External services wait for a working web app.** No hosting provider, cloud file storage or email provider has been chosen. Until then, photos are stored on local disk through Active Storage (switching to cloud storage later is a configuration change), and password-reset emails aren't sent in production.
 - **Account deletion is deactivation first.** Deleting an account deactivates it; signing in within 30 days reactivates it, and after that it's deleted permanently.
 
@@ -44,13 +44,13 @@ Built-in Rails authentication shared by web and API (hashed bearer tokens, 30-da
 
 ### Phase 2: Social and discovery
 
-- Public/private profile setting
-- Follow and unfollow; follow requests with approve, decline, and remove follower
-- Making a profile public approves pending requests; making it private keeps existing followers
-- Recipe visibility enforced everywhere: feed, Explore, search, profiles
-- Feed of recipes from people you follow; Explore (newest, popular)
-- Search with filters (meal type, total time, tags), using Postgres full-text search
-- Save recipes; copy ("fork") a recipe to adapt it
+- [x] Public/private profile setting; user profiles
+- [x] Follow and unfollow; follow requests with approve, decline, and remove follower
+- [x] Making a profile public approves pending requests; making it private keeps existing followers
+- [x] Recipe visibility follows profile privacy (recipe lists, recipe pages, profiles)
+- [ ] Feed of recipes from people you follow; Explore (newest, popular)
+- [ ] Search with filters (meal type, total time, tags), using Postgres full-text search
+- [ ] Save recipes; copy ("fork") a recipe to adapt it
 
 ### Phase 3: Meal planning
 

@@ -7,7 +7,18 @@ Rails.application.routes.draw do
     namespace :v1 do
       resource :session, only: %i[create destroy]
       resource :registration, only: :create
-      resource :me, controller: :me, only: %i[show update destroy]
+      resource :me, controller: :me, only: %i[show update destroy] do
+        # Both keyed by the other user's id.
+        resources :follow_requests, only: %i[index destroy] do
+          post :approve, on: :member
+        end
+        resources :followers, only: :destroy
+      end
+      resources :users, only: :show do
+        resource :follow, only: %i[create destroy]
+        resources :followers, only: :index
+        resources :following, only: :index
+      end
       resources :recipes, except: %i[new edit]
       resources :direct_uploads, only: :create
     end
