@@ -66,6 +66,10 @@ List endpoints return newest first unless noted, 20 items by default. Pass `limi
 | `POST` | `/api/v1/planned_meals` | ✓ | Plan a meal: `{planned_meal: {recipe_id, date, meal_slot, servings}}`. `meal_slot` is breakfast, lunch, dinner or snack; `servings` defaults to the household size. A slot can hold several recipes. Each recipe can be planned once per date and slot; adding it again returns the existing meal (`200`). |
 | `PATCH` | `/api/v1/planned_meals/:id` | ✓ | Move or resize: `{planned_meal: {date, meal_slot, servings, lock_version}}`. `lock_version` is required: send the value from the meal you last loaded. If the meal changed since, returns `409` with `{error, planned_meal}` showing its current state. |
 | `DELETE` | `/api/v1/planned_meals/:id` | ✓ | Remove a planned meal. |
+| `POST` | `/api/v1/plan_templates` | ✓ | Save the week containing `date` as a reusable template: `{plan_template: {name, date}}`. Meals are stored by weekday; recipes you can no longer see are left out. `422` if the week has no meals or the name is taken. |
+| `GET` | `/api/v1/plan_templates` | ✓ | Your household's templates, newest first: `{plan_templates: [{id, name, meals_count, created_at}], next_page}`. |
+| `GET` | `/api/v1/plan_templates/:id` | ✓ | A template with `meals: [{id, weekday, meal_slot, servings, unavailable, recipe}]`. |
+| `DELETE` | `/api/v1/plan_templates/:id` | ✓ | Delete a template. |
 | `POST` | `/api/v1/direct_uploads` | ✓ | Start a photo upload. Body: `{blob: {filename, byte_size, checksum, content_type}}`. Returns `{signed_id, direct_upload: {url, headers}}`. Rate limited. |
 
 ### Recipes

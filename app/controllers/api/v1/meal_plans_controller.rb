@@ -47,14 +47,6 @@ class Api::V1::MealPlansController < Api::V1::BaseController
     @week = week_for(params[:date])
   end
 
-  def week_for(value)
-    date = Date.iso8601(value.to_s)
-    Current.user.week_containing(date)
-  rescue Date::Error
-    render json: {errors: {date: ["must be a date like 2026-11-02"]}}, status: :unprocessable_entity
-    nil
-  end
-
   def render_week
     @planned_meals = household.planned_meals.between(@week).includes(recipe: [:user, {photo_attachment: :blob}])
     render :show

@@ -45,6 +45,15 @@ class Api::V1::BaseController < ActionController::API
     records
   end
 
+  # The planner week (a date range) containing the YYYY-MM-DD date in `value`,
+  # per the user's week start. Renders a 422 and returns nil if it's invalid.
+  def week_for(value)
+    Current.user.week_containing(Date.iso8601(value.to_s))
+  rescue Date::Error
+    render json: {errors: {date: ["must be a date like 2026-11-02"]}}, status: :unprocessable_entity
+    nil
+  end
+
   def render_private_profile
     render json: {error: "This profile is private"}, status: :forbidden
   end
