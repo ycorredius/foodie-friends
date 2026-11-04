@@ -28,6 +28,7 @@ Rails.application.routes.draw do
       resource :household, only: %i[show update]
       get "meal_plans/:date", to: "meal_plans#show", as: :meal_plan
       post "meal_plans/:date/copy", to: "meal_plans#copy", as: :copy_meal_plan
+      post "meal_plans/:date/apply_template", to: "meal_plans#apply_template", as: :apply_template_meal_plan
       resources :planned_meals, only: %i[create update destroy]
       resources :plan_templates, only: %i[index show create destroy]
       resources :direct_uploads, only: :create

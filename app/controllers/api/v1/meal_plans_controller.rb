@@ -18,6 +18,42 @@ class Api::V1::MealPlansController < Api::V1::BaseController
       return render json: {errors: {from: ["must be a different week"]}}, status: :unprocessable_entity
     end
 
+    offset = @week.first - source.first
+    replace_week do
+      household.planned_meals.where(date: source, recipe_id: Recipe.visible_to(Current.user).select(:id)).find_each do |meal|
+        household.planned_meals.create!(recipe_id: meal.recipe_id, meal_slot: meal.meal_slot, servings: meal.servings,
+          date: meal.date + offset)
+      end
+    end
+  end
+
+  # Fills this week from the household's template `plan_template_id`, putting
+  # each meal on the day with its weekday. Same 409/`replace` rule as copy.
+  # Recipes the user can no longer see are left out and counted in
+  # `skipped_meals_count`; if none are left, nothing changes and it's a 422.
+  def apply_template
+    template = household.plan_templates.find(params.expect(:plan_template_id))
+    meals = template.meals.where(recipe_id: Recipe.visible_to(Current.user).select(:id)).to_a
+    if meals.empty?
+      return render json: {errors: {plan_template_id: ["has no recipes you can still see"]}}, status: :unprocessable_entity
+    end
+
+    @skipped_meals_count = template.meals.size - meals.size
+    dates_by_wday = @week.index_by(&:wday)
+    replace_week do
+      meals.each do |meal|
+        household.planned_meals.create!(recipe_id: meal.recipe_id, meal_slot: meal.meal_slot, servings: meal.servings,
+          date: dates_by_wday.fetch(meal.wday))
+      end
+    end
+  end
+
+  private
+
+  # Clears this week and runs the block in one transaction, then renders the
+  # week. Renders a 409 instead if the week already has meals and `replace`
+  # isn't true.
+  def replace_week
     existing = household.planned_meals.where(date: @week)
     if existing.exists? && !ActiveModel::Type::Boolean.new.cast(params[:replace])
       return render json: {
@@ -26,18 +62,12 @@ class Api::V1::MealPlansController < Api::V1::BaseController
       }, status: :conflict
     end
 
-    offset = @week.first - source.first
     PlannedMeal.transaction do
       existing.delete_all
-      household.planned_meals.where(date: source, recipe_id: Recipe.visible_to(Current.user).select(:id)).find_each do |meal|
-        household.planned_meals.create!(recipe_id: meal.recipe_id, meal_slot: meal.meal_slot, servings: meal.servings,
-          date: meal.date + offset)
-      end
+      yield
     end
     render_week
   end
-
-  private
 
   def household
     Current.user.household
