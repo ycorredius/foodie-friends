@@ -26,6 +26,8 @@ module Unit
     *%w[each clove slice can package bunch sprig stick pinch dash].map { |key| Definition.new(key, :count, nil, nil) }
   ].index_by(&:key).freeze
 
+  BASE_UNITS = {mass: "g", volume: "ml"}.freeze
+
   # For each system and dimension, the units to display, largest first, with the
   # smallest quantity (in base units) each is used for.
   DISPLAY_UNITS = {
@@ -60,21 +62,31 @@ module Unit
     in_display_unit(quantity * definition.to_base, definition.dimension, system)
   end
 
-  # Adds up Amounts of one ingredient, e.g. for a grocery list. Mass and volume
-  # are totalled separately (converting between them would need the
-  # ingredient's density) and shown in the given system; count units, and
+  # Adds up Amounts of one ingredient, e.g. for a grocery list. Mass is
+  # totalled in grams and volume in millilitres, separately (converting
+  # between them would need the ingredient's density); count units, and
   # quantities without a unit ("2 eggs"), are totalled per unit. Amounts
-  # without a quantity are left out. Returns one Amount per mass, volume and
-  # count unit, in the order they first appear.
-  def self.sum(amounts, system:)
+  # without a quantity are left out. Returns one unrounded Amount per mass,
+  # volume and count unit, in the order they first appear; show them with
+  # Unit.display.
+  def self.sum(amounts)
     amounts.select(&:quantity).group_by { |amount| DEFINITIONS[amount.unit]&.system ? self[amount.unit].dimension : amount.unit }
       .map do |key, group|
         if key.is_a?(Symbol)
-          in_display_unit(group.sum { |amount| amount.quantity * self[amount.unit].to_base }, key, system)
+          Amount.new(group.sum { |amount| amount.quantity * self[amount.unit].to_base }, BASE_UNITS.fetch(key))
         else
-          Amount.new(round(group.sum(&:quantity), key), key)
+          Amount.new(group.sum(&:quantity), key)
         end
       end
+  end
+
+  # An amount from Unit.sum, rounded and shown in the given system in the
+  # display unit for its size (e.g. 1500 g as 1.5 kg). Count units only round.
+  def self.display(amount, system:)
+    definition = DEFINITIONS[amount.unit]
+    return Amount.new(round(amount.quantity, amount.unit), amount.unit) if definition&.system.nil?
+
+    in_display_unit(amount.quantity * definition.to_base, definition.dimension, system)
   end
 
   # A quantity in base units (grams or millilitres), shown in the system's

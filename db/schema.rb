@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_01_220000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -53,6 +53,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_220000) do
     t.index ["follower_id", "followed_id"], name: "index_follows_on_follower_id_and_followed_id", unique: true
     t.index ["follower_id"], name: "index_follows_on_follower_id"
     t.check_constraint "follower_id <> followed_id", name: "follows_not_self"
+  end
+
+  create_table "grocery_list_items", force: :cascade do |t|
+    t.bigint "grocery_list_id", null: false
+    t.bigint "ingredient_id"
+    t.string "name", null: false
+    t.integer "category", default: 0, null: false
+    t.jsonb "amounts", default: [], null: false
+    t.bigint "recipe_ids", default: [], null: false, array: true
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["grocery_list_id", "ingredient_id"], name: "index_grocery_list_items_on_grocery_list_id_and_ingredient_id", unique: true, where: "(ingredient_id IS NOT NULL)"
+    t.index ["grocery_list_id"], name: "index_grocery_list_items_on_grocery_list_id"
+    t.index ["ingredient_id"], name: "index_grocery_list_items_on_ingredient_id"
+  end
+
+  create_table "grocery_lists", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "name"
+    t.date "start_date", null: false
+    t.date "end_date", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_grocery_lists_on_household_id"
   end
 
   create_table "household_memberships", force: :cascade do |t|
@@ -366,6 +391,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_220000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "follows", "users", column: "followed_id"
   add_foreign_key "follows", "users", column: "follower_id"
+  add_foreign_key "grocery_list_items", "grocery_lists", on_delete: :cascade
+  add_foreign_key "grocery_list_items", "ingredients"
+  add_foreign_key "grocery_lists", "households"
   add_foreign_key "household_memberships", "households"
   add_foreign_key "household_memberships", "users"
   add_foreign_key "plan_template_meals", "plan_templates"

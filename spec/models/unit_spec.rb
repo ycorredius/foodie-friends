@@ -51,7 +51,8 @@ RSpec.describe Unit do
 
   describe ".sum" do
     def sum(*amounts, system:)
-      Unit.sum(amounts.map { |q, u| Unit::Amount.new(q && BigDecimal(q.to_s), u) }, system: system)
+      Unit.sum(amounts.map { |q, u| Unit::Amount.new(q && BigDecimal(q.to_s), u) })
+        .map { |amount| Unit.display(amount, system: system) }
         .map { |amount| [amount.quantity.to_f, amount.unit] }
     end
 
@@ -72,6 +73,11 @@ RSpec.describe Unit do
     it "adds count units and unitless quantities per unit, without converting" do
       expect(sum([2, "clove"], [1, "can"], [1.5, "clove"], [2, nil], [1, nil], system: "metric"))
         .to eq([[3.5, "clove"], [1.0, "can"], [3.0, nil]])
+    end
+
+    it "totals in grams and millilitres, unrounded" do
+      expect(Unit.sum([Unit::Amount.new(1, "cup"), Unit::Amount.new(1, "lb")]))
+        .to eq([Unit::Amount.new(BigDecimal("236.5882365"), "ml"), Unit::Amount.new(BigDecimal("453.59237"), "g")])
     end
 
     it "leaves out amounts without a quantity" do
