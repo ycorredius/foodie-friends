@@ -25,3 +25,18 @@ Together these stop accidental overwrites. Every member of a household still has
 - How does this interact with the household manager role (e.g. private chefs managing several households, see the roadmap's Phase 5)? Is a manager an owner, or something else?
 
 **Revisit when:** building Phase 5 (household sharing), before more than one person can edit a household's plan.
+
+## Saved grocery lists when the plan changes
+
+**Decided:** 2026-11-05, during Phase 4 (grocery lists). Nothing built yet.
+
+**What we built**
+- `GET /api/v1/grocery_list` works the list out from the planned meals on every request, so it always matches the current plan. Nothing is stored yet.
+
+**Open question**
+- Once lists are saved (check-off, "already have", manual items), what happens when the plan changes afterwards? Options:
+  - **Update automatically:** recompute the generated items and keep check marks, "have it" flags and manual items. Always current, but quantities can change under someone who is mid-shop.
+  - **Snapshot:** the list stays as generated until the user regenerates it. Predictable, but can go stale without anyone noticing.
+  - **Snapshot plus a nudge:** keep the snapshot and flag that the plan changed since it was made, so the user can choose to regenerate.
+
+**Revisit when:** building saved grocery lists (Phase 4, slice 2).
