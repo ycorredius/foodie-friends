@@ -57,10 +57,33 @@ module Unit
     definition = DEFINITIONS[unit]
     return Amount.new(round(quantity, unit), unit) if definition.nil? || definition.system.nil? || definition.system == system
 
-    base = quantity * definition.to_base
-    display_unit, = DISPLAY_UNITS.fetch(system).fetch(definition.dimension).find { |_key, min| base >= min }
+    in_display_unit(quantity * definition.to_base, definition.dimension, system)
+  end
+
+  # Adds up Amounts of one ingredient, e.g. for a grocery list. Mass and volume
+  # are totalled separately (converting between them would need the
+  # ingredient's density) and shown in the given system; count units, and
+  # quantities without a unit ("2 eggs"), are totalled per unit. Amounts
+  # without a quantity are left out. Returns one Amount per mass, volume and
+  # count unit, in the order they first appear.
+  def self.sum(amounts, system:)
+    amounts.select(&:quantity).group_by { |amount| DEFINITIONS[amount.unit]&.system ? self[amount.unit].dimension : amount.unit }
+      .map do |key, group|
+        if key.is_a?(Symbol)
+          in_display_unit(group.sum { |amount| amount.quantity * self[amount.unit].to_base }, key, system)
+        else
+          Amount.new(round(group.sum(&:quantity), key), key)
+        end
+      end
+  end
+
+  # A quantity in base units (grams or millilitres), shown in the system's
+  # display unit for its size.
+  def self.in_display_unit(base, dimension, system)
+    display_unit, = DISPLAY_UNITS.fetch(system).fetch(dimension).find { |_key, min| base >= min }
     Amount.new(round(base / self[display_unit].to_base, display_unit), display_unit)
   end
+  private_class_method :in_display_unit
 
   def self.round(quantity, unit)
     if %w[g ml].include?(unit) && quantity >= 10

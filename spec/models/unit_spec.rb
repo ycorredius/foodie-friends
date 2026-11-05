@@ -48,4 +48,35 @@ RSpec.describe Unit do
       expect(convert(3, nil, system: "metric", factor: 2)).to eq([6.0, nil])
     end
   end
+
+  describe ".sum" do
+    def sum(*amounts, system:)
+      Unit.sum(amounts.map { |q, u| Unit::Amount.new(q && BigDecimal(q.to_s), u) }, system: system)
+        .map { |amount| [amount.quantity.to_f, amount.unit] }
+    end
+
+    it "adds volumes across systems and shows the total in the reader's system" do
+      expect(sum([1, "cup"], [4, "tbsp"], system: "us_customary")).to eq([[1.25, "cup"]])
+      expect(sum([1, "cup"], [200, "ml"], system: "metric")).to eq([[437.0, "ml"]])
+    end
+
+    it "adds masses and picks a unit for the total's size" do
+      expect(sum([200, "g"], [1, "lb"], system: "us_customary")).to eq([[1.44, "lb"]])
+      expect(sum([600, "g"], [0.5, "kg"], system: "metric")).to eq([[1.1, "kg"]])
+    end
+
+    it "keeps mass and volume separate" do
+      expect(sum([2, "cup"], [100, "g"], [1, "cup"], system: "us_customary")).to eq([[3.0, "cup"], [3.53, "oz"]])
+    end
+
+    it "adds count units and unitless quantities per unit, without converting" do
+      expect(sum([2, "clove"], [1, "can"], [1.5, "clove"], [2, nil], [1, nil], system: "metric"))
+        .to eq([[3.5, "clove"], [1.0, "can"], [3.0, nil]])
+    end
+
+    it "leaves out amounts without a quantity" do
+      expect(sum([nil, nil], [1, "tsp"], system: "us_customary")).to eq([[1.0, "tsp"]])
+      expect(sum([nil, nil], system: "us_customary")).to eq([])
+    end
+  end
 end
