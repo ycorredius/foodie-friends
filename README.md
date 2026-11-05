@@ -70,6 +70,7 @@ List endpoints return newest first unless noted, 20 items by default. Pass `limi
 | `GET` | `/api/v1/plan_templates` | ✓ | Your household's templates, newest first: `{plan_templates: [{id, name, meals_count, created_at}], next_page}`. |
 | `GET` | `/api/v1/plan_templates/:id` | ✓ | A template with `meals: [{id, weekday, meal_slot, servings, unavailable, recipe}]`. |
 | `DELETE` | `/api/v1/plan_templates/:id` | ✓ | Delete a template. |
+| `POST` | `/api/v1/meal_plans/:date/apply_template` | ✓ | Plan the week containing `:date` from a template: `{plan_template_id, replace}`. Each meal goes on the day with its weekday. Returns the week plus `skipped_meals_count` (template recipes you can no longer see, which are left out). `409` if the week already has meals, unless `replace: true`; `422` if none of the template's recipes are visible. |
 | `POST` | `/api/v1/direct_uploads` | ✓ | Start a photo upload. Body: `{blob: {filename, byte_size, checksum, content_type}}`. Returns `{signed_id, direct_upload: {url, headers}}`. Rate limited. |
 
 ### Recipes

@@ -114,4 +114,89 @@ RSpec.describe "API plan templates", type: :request do
       expect(PlanTemplate.exists?(template.id)).to be(true)
     end
   end
+
+  describe "POST /api/v1/meal_plans/:date/apply_template" do
+    # Saved from Sunday 2026-11-01: Sunday breakfast (4 servings), Wednesday dinner.
+    let!(:template) do
+      plan(sunday, :breakfast, servings: 4)
+      plan(sunday + 3.days, :dinner)
+      PlanTemplate.build_from(household: household, user: user, dates: sunday..(sunday + 6.days), name: "Usual").tap(&:save!)
+    end
+    let(:next_week) { "2026-11-10" }
+
+    def apply(date = next_week, template_id: template.id, **params)
+      post api_v1_apply_template_meal_plan_path(date), params: {plan_template_id: template_id, **params}, headers: headers, as: :json
+    end
+
+    def planned
+      response.parsed_body["planned_meals"].map { |m| [m["date"], m["meal_slot"], m["servings"]] }
+    end
+
+    it "plans the template's meals on the matching weekdays" do
+      apply
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body).to include("week_start" => "2026-11-08", "skipped_meals_count" => 0)
+      expect(planned).to eq([["2026-11-08", "breakfast", 4], ["2026-11-11", "dinner", 2]])
+      expect(household.planned_meals.count).to eq(4)
+    end
+
+    it "matches weekdays, not positions, when the week starts on Monday" do
+      user.update!(week_start_day: :monday)
+      apply
+      expect(response.parsed_body["week_start"]).to eq("2026-11-09")
+      expect(planned).to eq([["2026-11-11", "dinner", 2], ["2026-11-15", "breakfast", 4]])
+    end
+
+    it "refuses to overwrite a week with meals unless replace is true" do
+      existing = plan(sunday + 7.days, :lunch)
+
+      apply
+      expect(response).to have_http_status(:conflict)
+      expect(response.parsed_body).to include("planned_meals_count" => 1)
+      expect(household.planned_meals.where(date: sunday + 7.days..sunday + 13.days).count).to eq(1)
+
+      apply(replace: true)
+      expect(response).to have_http_status(:ok)
+      expect(PlannedMeal.exists?(existing.id)).to be(false)
+      expect(planned.map(&:second)).to eq(%w[breakfast dinner])
+    end
+
+    it "leaves out and counts recipes the user can no longer see" do
+      hidden = create(:recipe)
+      template.meals.create!(recipe: hidden, wday: 5, meal_slot: :lunch, servings: 2)
+      hidden.update!(visibility: :only_me)
+
+      apply
+      expect(response.parsed_body["skipped_meals_count"]).to eq(1)
+      expect(planned.map(&:second)).to eq(%w[breakfast dinner])
+    end
+
+    it "changes nothing when none of the template's recipes are visible" do
+      existing = plan(sunday + 7.days, :lunch)
+      recipe.update!(visibility: :only_me)
+
+      apply(replace: true)
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body["errors"]).to have_key("plan_template_id")
+      expect(PlannedMeal.exists?(existing.id)).to be(true)
+    end
+
+    it "only applies the household's own templates" do
+      other = create(:user)
+      post api_v1_apply_template_meal_plan_path(next_week), params: {plan_template_id: template.id},
+        headers: {Authorization: "Bearer #{create(:session, user: other).token}"}, as: :json
+      expect(response).to have_http_status(:not_found)
+      expect(other.household.planned_meals.count).to eq(0)
+    end
+
+    it "rejects invalid dates and a missing template" do
+      apply("soon")
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body["errors"]).to have_key("date")
+
+      post api_v1_apply_template_meal_plan_path(next_week), headers: headers, as: :json
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
 end
