@@ -28,15 +28,13 @@ Together these stop accidental overwrites. Every member of a household still has
 
 ## Saved grocery lists when the plan changes
 
-**Decided:** 2026-11-05, during Phase 4 (grocery lists). Nothing built yet.
+**Decided:** 2026-11-05, during Phase 4 (grocery lists).
 
-**What we built**
-- `GET /api/v1/grocery_list` works the list out from the planned meals on every request, so it always matches the current plan. Nothing is stored yet.
+**What we decided**
+- Saved lists are **snapshots plus a nudge**: a saved list doesn't change when the plan does, so quantities never shift while someone is shopping. Instead the list will show a "plan changed" flag, and a regenerate action will update the generated items while keeping statuses and manual items. Saving and viewing lists are built; the flag and regenerate come in a later PR.
+- Rejected: updating lists automatically (quantities could change mid-shop) and snapshots with no flag (lists could go out of date without anyone noticing).
 
-**Open question**
-- Once lists are saved (check-off, "already have", manual items), what happens when the plan changes afterwards? Options:
-  - **Update automatically:** recompute the generated items and keep check marks, "have it" flags and manual items. Always current, but quantities can change under someone who is mid-shop.
-  - **Snapshot:** the list stays as generated until the user regenerates it. Predictable, but can go stale without anyone noticing.
-  - **Snapshot plus a nudge:** keep the snapshot and flag that the plan changed since it was made, so the user can choose to regenerate.
+**Open ideas**
+- When regenerating, what happens to an item marked bought whose quantity went up? Keep it bought, or reset it to "to buy" for the difference?
 
-**Revisit when:** building saved grocery lists (Phase 4, slice 2).
+**Revisit when:** building the plan-changed flag and regenerate.

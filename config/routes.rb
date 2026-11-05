@@ -31,7 +31,10 @@ Rails.application.routes.draw do
       post "meal_plans/:date/apply_template", to: "meal_plans#apply_template", as: :apply_template_meal_plan
       resources :planned_meals, only: %i[create update destroy]
       resources :plan_templates, only: %i[index show create destroy]
-      resource :grocery_list, only: :show
+      resources :grocery_lists, only: %i[index show create destroy] do
+        get :preview, on: :collection
+        resources :items, controller: :grocery_list_items, only: :update
+      end
       resources :direct_uploads, only: :create
     end
   end

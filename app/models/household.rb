@@ -5,6 +5,7 @@ class Household < ApplicationRecord
   has_many :members, through: :memberships, source: :user
   has_many :planned_meals, dependent: :destroy
   has_many :plan_templates, dependent: :destroy
+  has_many :grocery_lists, dependent: :destroy
 
   validates :name, presence: true, length: {maximum: 60}
   # Number of people being fed; the default servings for planned meals.
