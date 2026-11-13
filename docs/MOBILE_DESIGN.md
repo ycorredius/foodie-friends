@@ -3,7 +3,7 @@
 The design for the mobile client: structure, screens, the experience on each, visual design and build order. It's a working draft: update it as decisions change. The app is being refocused on groceries and budgeting (see the mission in [ROADMAP.md](ROADMAP.md)), and it gets a new name, not yet chosen.
 
 **Decided:**
-- **React Native with Expo** (2026-11-13, replacing the earlier plan of native Kotlin, then Swift), written in TypeScript, in a separate repo. One codebase serves Android and iOS. Testing starts on an Android phone.
+- **React Native with Expo** (2026-11-13, replacing the earlier plan of native Kotlin, then Swift), written in TypeScript, in a separate repo. One codebase serves Android and iOS. **The MVP ships on Android only** (2026-11-13); iOS follows after it.
 - **Built by hand** by the project owner. This document describes *what* to build and *why*, not how to code it.
 
 ## 1. App structure
@@ -47,9 +47,9 @@ The screen that carries the mission: what this week costs, and what it saves.
 
 - Search bar at the top (`q`).
 - A **Following** view: recipes from people you follow (the feed), with infinite scroll and pull to refresh. A new user follows nobody, so its empty state offers "Find people to follow".
-- **Shared weeks** (Phase 7): a Recipes / Weeks switch. Week cards show the total, the household size it was planned for and cost per serving ("$62 · family of 4 · $2.20 a serving"), filterable by price and household size.
+- **Shared weeks** (Phase 6): a Recipes / Weeks switch. Week cards show the total, the household size it was planned for and cost per serving ("$62 · family of 4 · $2.20 a serving"), filterable by price and household size.
 
-### Shared week (Phase 7)
+### Shared week (Phase 6)
 
 - The week's meals by day, its total and cost per serving, and who shared it.
 - **Re-costed for you:** the total shown is for *your* household size and *your* prices, with the original next to it ("$48 for your 3 people, $62 as shared").
@@ -84,7 +84,7 @@ The screen that carries the mission: what this week costs, and what it saves.
 
 - **Week view:** the week as a vertical list of days, starting at today, which is highlighted. Each day shows its meals under small slot labels, with their costs. Swipe or use arrows to change weeks.
 - **Budget bar** at the top: the week's planned cost against the budget, updated as meals change.
-- **Suggest my week** (Phase 6): choose which days and slots to fill; the app proposes meals within the budget and your preferences. Review the proposal, swap any meal for another suggestion, then accept it.
+- **Suggest my week** (Phase 8): choose which days and slots to fill; the app proposes meals within the budget and your preferences. Review the proposal, swap any meal for another suggestion, then accept it.
 - **Editing a meal:** tap it to change servings, move it or remove it. If the API answers `409` (someone else changed it), show "This meal was changed elsewhere. Here's the latest" and reload it. Don't show an error.
 - **Overflow menu:** **Copy last week**, **Apply a template**, **Save week as template**. When the week already has meals, the API answers `409`; turn that into a clear choice: "Replace this week's 6 meals?" with **Cancel** / **Replace** (resend with `replace: true`).
 - **Unavailable recipes:** meals whose recipe is no longer available (`unavailable: true`) appear greyed out with "No longer available" and a remove button.
@@ -98,7 +98,7 @@ The screen that carries the mission: what this week costs, and what it saves.
   - Tap an item to mark it **bought**: struck through and moved to the bottom of its section. A secondary action (swipe or long-press) marks it **"have it"**.
   - A progress line at the top: "12 of 30 left".
   - The recipes that need each item, in small text underneath.
-  - **Prices:** the list's estimated checkout total at the top, and an optional "what did you pay?" when checking an item off. Entered prices replace estimates for the household, so costs get more accurate the more the app is used. Keep it optional and quick: never block checking off on it.
+  - **Prices:** the list's estimated checkout total at the top. After the MVP, an optional "what did you pay?" when checking an item off. Entered prices replace estimates for the household, so costs get more accurate the more the app is used. Keep it optional and quick: never block checking off on it.
 - **Weak signal:** supermarkets often have poor reception. When an item is tapped, update the screen immediately, send the change in the background, and retry if it fails ("optimistic updates"). Never make the user wait for the server to cross something off. This is the biggest single improvement to how the app feels.
 
 ### Me
@@ -143,14 +143,19 @@ Each milestone is something you can use:
    - Handling `401` (expired or revoked token) by returning to sign-in.
 2. **Browse:** Explore and Recipe detail, read-only. Teaches lists, pagination, loading states and navigation.
 3. **Plan:** the week view and Add to plan.
-4. **Groceries:** preview, saved lists and shopping mode with optimistic updates.
+4. **Groceries:** preview, saved lists, manual items and shopping mode with optimistic updates.
 5. **Costs and Home:** costs on cards, recipes, the plan and lists; the budget bar; the Home screen. Built as the API's Phase 5 lands.
-6. **Suggestions:** preferences and Suggest my week, with the API's Phase 6.
-7. **Create and edit recipes:** forms, ingredient lines, photo upload through direct uploads.
-8. **Social:** profiles, follows and requests, and the Following view.
-9. **Community:** shared weeks (browse, copy, share your own) and community prices, with the API's Phase 7.
+6. **Shared weeks:** browse, copy and share your own, with the API's Phase 6.
+7. **Release:** the app name and icon, pointing at the production server, and an Android release (the API's Phase 7).
 
-Until milestone 5, Home can show the week's planned meals without costs.
+**Milestones 1–7 are the MVP** (see [ROADMAP.md](ROADMAP.md)). After it, in roughly this order:
+
+8. **Suggestions:** preferences and Suggest my week, with the API's Phase 8.
+9. **Social:** profiles, follows and requests, and the Following view.
+10. **Create and edit recipes:** forms, ingredient lines, photo upload through direct uploads.
+11. **iOS release.**
+
+Until milestone 5, Home can show the week's planned meals without costs. Until milestone 8, its empty state offers starter weeks to copy instead of Suggest my week.
 
 Before milestone 1, work through the official material, in this order:
 - **react.dev "Learn"**: React itself (components, props, state, hooks). React Native is React with mobile building blocks instead of HTML.

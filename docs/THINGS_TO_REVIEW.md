@@ -22,9 +22,9 @@ Together these stop accidental overwrites. Every member of a household still has
 - Should members be able to edit the plan directly, or only propose changes? Does that differ between adding a meal and changing or removing someone else's?
 - If changes need approval, where do pending proposals show up, and what happens if the owner never responds?
 - Should deleting a meal also be protected by the version check, or by approval?
-- How does this interact with the household manager role (e.g. private chefs managing several households, see the roadmap's Phase 8)? Is a manager an owner, or something else?
+- How does this interact with the household manager role (e.g. private chefs managing several households, see the roadmap's Phase 10)? Is a manager an owner, or something else?
 
-**Revisit when:** building Phase 8 (household sharing), before more than one person can edit a household's plan.
+**Revisit when:** building Phase 10 (household sharing), before more than one person can edit a household's plan.
 
 ## Saved grocery lists when the plan changes
 
@@ -45,14 +45,14 @@ Together these stop accidental overwrites. Every member of a household still has
 
 **Open ideas**
 - **Per household:** one set of preferences for the plan. Simple, and the plan is shared anyway, but someone has to merge everyone's needs by hand.
-- **Per person, combined for the household:** each member sets their own; suggestions use the union of allergies and diets and avoid anyone's dislikes. More accurate for families, more to build, and it only matters once household sharing (Phase 8) exists.
+- **Per person, combined for the household:** each member sets their own; suggestions use the union of allergies and diets and avoid anyone's dislikes. More accurate for families, more to build, and it only matters once household sharing (Phase 10) exists.
 - A middle path: store preferences per user now, and combine members' preferences when sharing arrives.
 
 **Questions to answer**
 - Are dislikes a hard filter (never suggest) or a soft one (suggest less often)?
 - Should a member's diet (e.g. one vegetarian in the family) exclude meals for everyone, or suggest a variant for them?
 
-**Revisit when:** building preferences in Phase 6.
+**Revisit when:** building preferences in Phase 8.
 
 ## How accurate price estimates need to be
 
@@ -60,7 +60,7 @@ Together these stop accidental overwrites. Every member of a household still has
 
 **Open ideas**
 - National averages can be well off in expensive or cheap areas. A regional adjustment (e.g. by state or ZIP code region, from public price indexes) could help before store prices exist.
-- **Community prices** (Phase 7) are the longer-term answer: anonymous regional averages of what households paid. They need a minimum number of reporting households per ingredient and region before they're shown, both for privacy and so one odd price doesn't skew them. What that minimum is, how big a "region" is (state, metro area, ZIP prefix), and how to drop outliers (a typo of $40 for an onion) are still open.
+- **Community prices** (Phase 9) are the longer-term answer: anonymous regional averages of what households paid. They need a minimum number of reporting households per ingredient and region before they're shown, both for privacy and so one odd price doesn't skew them. What that minimum is, how big a "region" is (state, metro area, ZIP prefix), and how to drop outliers (a typo of $40 for an onion) are still open.
 - Estimates go stale: record each one's source and date, and decide how often to refresh them.
 - Show how confident a cost is, e.g. "estimated" vs. "your prices", and "3 of 9 ingredients have no price".
 
@@ -85,7 +85,7 @@ Together these stop accidental overwrites. Every member of a household still has
 - A **gather ingredients screen** for prep day: everything to take out before cooking, each ingredient combined across all the session's recipes (e.g. "garlic: 9 cloves") with the split per recipe underneath, ticked off as it's set out. It's different from the grocery list: the grocery list is what to *buy* (whole packages, by store aisle), this is what to *use* (exact amounts, perhaps grouped by where it's kept: fridge, pantry, freezer). It reuses the grocery list's way of combining amounts, and could also be useful for cooking a single recipe, not just prep days.
 - **How long food keeps:** fridge life and whether a recipe freezes well, as structured recipe data (not tags, since the app calculates and warns with them). Warn when a meal would be eaten after its fridge life and suggest freezing those portions. Food safety guidance must come from a reliable source such as USDA.
 - **Prep mode for suggestions:** fewer recipes that batch well and share ingredients, cooked on the chosen prep day(s).
-- **Shared prep weeks** ("Sunday prep: 15 meals, $38, about 2½ hours") as Community content (Phase 7).
+- **Shared prep weeks** ("Sunday prep: 15 meals, $38, about 2½ hours") as shared weeks (Phase 6).
 
 **Questions to answer**
 - One prep day a week, or several (e.g. Sunday and Wednesday, so food stays fresh)? Which should the first design focus on?
@@ -94,6 +94,27 @@ Together these stop accidental overwrites. Every member of a household still has
 - Does prep time matter enough to estimate a session's total time, and can steps from different recipes be combined into one cooking order, or is that too complex?
 - Should the prep week view track portions eaten (tick off "Monday's lunch"), or only show what was made? Tracking is more useful but asks the user to do something every day.
 - Should the gather screen be grouped by recipe (cook one at a time) or by where ingredients are kept (one trip to the fridge, one to the pantry)? This needs a storage location on catalog ingredients, which doesn't exist yet.
-- Where should it sit in the roadmap? One idea: a small phase right after costs (Phase 5), so suggestions (Phase 6) can include prep mode from the start.
+- Where should it sit in the roadmap? One idea: a small phase right after costs (Phase 5), so suggestions (Phase 8) can include prep mode from the start.
 
-**Revisit when:** the meal prep research is done, before planning Phase 6 (suggestions), since prep mode affects how suggestions are built.
+**Revisit when:** the meal prep research is done, before planning Phase 8 (suggestions), since prep mode affects how suggestions are built.
+
+## Ordering from grocery stores
+
+**Decided:** 2026-11-13: after the MVP. The MVP must first prove that people care about costs and shared weeks. Nothing in the MVP blocks it: grocery list items already know their ingredient and combined amount, which is where matching would start.
+
+**The idea:** send a grocery list to a store so the user can order it, either inside the app or by opening the store's site with the items in the cart. It completes the loop (plan, cost, list, order), brings real store prices into the app, and is a likely business model, since grocery partners often pay commission on orders.
+
+**Possible routes** (check current terms; these programs change):
+- **Instacart's developer platform:** send a list and open a page where the user picks a store and checks out. Covers many retailers at once.
+- **Kroger's public API:** store prices, product search, and adding to a user's cart after they sign in to Kroger.
+- **Walmart:** mostly through its affiliate program and add-to-cart links; deeper API access tends to be partner-only.
+
+**The hard part is matching, not the integration:** turning "yellow onion, 1.5 lb" into a specific product and package size at a specific store, and handling items that are out of stock or have no good match. It's different for every store.
+
+**Questions to answer**
+- Which route first: one aggregator (Instacart) for reach, or one store (Kroger, Walmart) for real prices and deeper integration?
+- How do users confirm or change matched products, and does the app remember their choices?
+- **Mission conflict:** commission grows when users spend more, while the app promises they'll spend less. One rule could be to default to the cheapest suitable product and never steer users toward pricier ones. Is that enough, and should it be stated publicly?
+- Does ordering replace the household's own prices, or feed them (the price at order time becomes "what you paid")?
+
+**Revisit when:** the MVP has launched and shown that people use costs and shared weeks.
