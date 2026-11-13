@@ -2,6 +2,8 @@
 
 **Mission (refocused 2026-11-13):** help people eat well for less, by showing how cheap cooking at home can be and suggesting meals that fit their budget and food preferences.
 
+**Who it's for:** the family planner: a US household where one person does most of the planning and shopping. Who they are, what the app promises them and how it sounds are in [BRAND.md](BRAND.md).
+
 The app plans a household's week, works out the grocery list, and shows what it costs: per serving, at the checkout, against a weekly budget, and against eating out.
 
 **What makes it different: social around cost.** Budget meal planners are common, and so are recipe-sharing apps. Few combine them. Here, people share whole **priced weeks** ("our $62 week for a family of 4") that others can copy into their own plan, rescaled and re-costed for their household, and the prices users enter combine into **community prices** that make everyone's costs more accurate. Positioning: *see what real people actually spend to eat well, and copy their weeks.*
@@ -25,22 +27,26 @@ The app must be useful to someone with no friends on it (budget, costs and sugge
 | Costs | Seeded US price estimates with package sizes; cost per serving; checkout cost; weekly budget; savings against eating out | Phase 5 |
 | Shared weeks | Share a week; browse by price and household size; copy, re-costed for your household; seeded starter weeks | Phase 6 |
 | Starter content | About 50 cheap seed recipes, so weeks are worth copying | Phase 6 |
-| Mobile app | Android only, React Native: Home (this week), Explore (recipes and weeks), Recipe detail, Plan, Groceries, Me with basic settings | Built alongside, by the project owner |
-| Launch | The app name; hosting with HTTPS; password-reset emails; an Android release | Phase 7 |
+| Mobile app | Android only, React Native: Home (this week), Explore (recipes and weeks), Recipe detail, Plan, Groceries, Me with basic settings | Built alongside the API, in its own repo |
+| Brand | Name (Kettle & Coin), logo, the Sage & Slate palette, and the Innkeeper's voice in the app's wording, with plain navigation ([BRAND.md](BRAND.md)) | Decided; built with the app |
+| Launch | Final name checks; hosting with HTTPS; password-reset emails; an Android release | Phase 7 |
 
 **After the MVP:** regenerating lists when the plan changes; a household's own prices; community prices and regional adjustment; ordering from grocery stores; preferences, allergies and suggestions; follows, profiles and the Following view in the mobile app; social proof and challenges; creating and editing recipes in the mobile app; meal prep; household sharing; iOS.
 
 **Keeping the scope settled:** every product decision ends with an MVP check: it fits in the MVP, it belongs after the MVP, or the MVP is deliberately redefined here (with the date and reason). New ideas default to after the MVP and are parked in [THINGS_TO_REVIEW.md](THINGS_TO_REVIEW.md) or the later phases.
 
+**MVP checks recorded:**
+- 2026-11-13, **theme:** a fantasy tavern feel at "themed world, plain navigation" level (see [BRAND.md](BRAND.md)). The name, logo, voice and a few brand nouns are in the MVP; illustrations, quests and a deeper theme come after it. No change to the MVP's scope.
+
 ## Decisions
 
-- **New app name, not yet chosen.** The user-facing app gets a new name. The Rails app's internal name (`FoodieFriends`) and this repo's name stay as they are.
+- **The app is called Kettle & Coin** (chosen 2026-11-13, pending app store, domain and trademark checks), with a fantasy tavern feel and a community called the Hearthguild (see [BRAND.md](BRAND.md)). The Rails app's internal name (`FoodieFriends`) and this repo's name stay as they are.
 - **US-focused.** Prices, price data, stores and units default to the US.
 - **Prices come in layers.** Seeded US average estimates for every catalog ingredient, so costs show from day one, labelled as estimates. A household's own prices override them. Later, community prices (Phase 9) sit between the two, and store prices (grocer APIs such as Kroger's) may follow. Every cost the API returns says whether it's an estimate and how much of it is missing.
 - **Two costs, both shown.** *Cost per serving* counts only what a recipe uses: the "this dinner was $2.10 a plate" number. *Checkout cost* counts whole packages, because you can't buy half an onion; it's what a grocery list costs at the store.
 - **Allergies are a strict filter on ingredient data,** never on tags: a suggestion must never contain an allergen the household has listed.
 - **Spending stays private.** What can be shared: cost per serving and a shared week's plan total. What is never shown to others: a household's budget, what it spent, or its individual prices. Sharing a week is opt-in and follows the same visibility rules as recipes. Community prices are anonymous averages, published for a region only once enough households have reported a price that no one's purchases can be picked out.
-- **Starter weeks come from the app's own kitchen account,** like the starter recipes, and are clearly labelled as from the app. No fake users.
+- **Starter weeks come from the app's own kitchen account,** like the starter recipes, and are clearly labelled as from the app: in the brand, they're "the Innkeeper's picks". No fake users.
 
 - **API-first.** Features ship as `/api/v1` endpoints for the mobile client. No new web pages until we decide to build a web UI; the existing pages (sign-in, sign-up, password reset) stay because password-reset emails link to them.
 - **Following, with private profiles.** Profiles are public or private. Following a public user takes effect immediately; following a private user sends a follow request they approve or decline.
@@ -134,7 +140,7 @@ The social twist, moved ahead of suggestions (2026-11-13): it needs costs and th
 
 ### Phase 7: MVP launch
 
-- **MVP** Choose the app name
+- **MVP** Confirm the app name (Kettle & Coin) is available: app stores, domain, trademark
 - **MVP** Hosting with HTTPS, and the production database
 - **MVP** Email delivery for password resets
 - **MVP** An Android release of the mobile app

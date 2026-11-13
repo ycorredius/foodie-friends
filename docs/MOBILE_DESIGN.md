@@ -1,10 +1,10 @@
 # Mobile app design
 
-The design for the mobile client: structure, screens, the experience on each, visual design and build order. It's a working draft: update it as decisions change. The app is being refocused on groceries and budgeting (see the mission in [ROADMAP.md](ROADMAP.md)), and it gets a new name, not yet chosen.
+The design for the mobile client: structure, screens, the experience on each, visual design and build order. It's a working draft: update it as decisions change. The app is being refocused on groceries and budgeting (see the mission in [ROADMAP.md](ROADMAP.md)), and it's called **Kettle & Coin**, with a cozy fantasy tavern feel. **Read [BRAND.md](BRAND.md) before writing any screen's wording:** the theme lives in the voice and a few brand nouns (the Hearthguild, the Innkeeper, the Innkeeper's picks, bill of fare), while tabs, buttons and money stay in plain words.
 
 **Decided:**
 - **React Native with Expo** (2026-11-13, replacing the earlier plan of native Kotlin, then Swift), written in TypeScript, in a separate repo. One codebase serves Android and iOS. **The MVP ships on Android only** (2026-11-13); iOS follows after it.
-- **Built by hand** by the project owner. This document describes *what* to build and *why*, not how to code it.
+- **Built together with Claude Code** (changed 2026-11-13): Claude writes code for speed, and explains each concept as the project owner learns React Native. This document describes *what* to build and *why*; the code lives in the app's own repo.
 
 ## 1. App structure
 
@@ -40,14 +40,14 @@ The screen that carries the mission: what this week costs, and what it saves.
 - **Budget:** the week's planned cost against the weekly budget, as a bar ("$64 of $90"). Over budget is shown calmly, with a way to fix it ("Swap for cheaper meals").
 - **Savings:** "About $85 less than eating out this week", against the takeout price in settings.
 - **Next meals:** today's and tomorrow's meals, each with its cost per serving.
-- **Empty state:** a new user has no plan. Offer **Suggest my week** as the main button, with "Plan it myself" next to it.
+- **Empty state:** a new user has no plan. In the Innkeeper's voice ("The hearth is cold..."), offer **the Innkeeper's picks** (starter weeks to copy) as the main button, with "Plan it myself" next to it. Once suggestions exist (Phase 8), **Suggest my week** joins them.
 - Costs from estimates are marked as such ("est."), so users know they're approximate.
 
 ### Explore
 
 - Search bar at the top (`q`).
 - A **Following** view: recipes from people you follow (the feed), with infinite scroll and pull to refresh. A new user follows nobody, so its empty state offers "Find people to follow".
-- **Shared weeks** (Phase 6): a Recipes / Weeks switch. Week cards show the total, the household size it was planned for and cost per serving ("$62 · family of 4 · $2.20 a serving"), filterable by price and household size.
+- **Shared weeks** (Phase 6): a Recipes / Weeks switch. Weeks shared by the community are "from the Hearthguild"; the starter weeks are "the Innkeeper's picks", shown first while the community is small. Week cards show the total, the household size it was planned for and cost per serving ("$62 · family of 4 · $2.20 a serving"), filterable by price and household size.
 
 ### Shared week (Phase 6)
 
@@ -118,17 +118,23 @@ The screen that carries the mission: what this week costs, and what it saves.
 
 ## 3. Visual design
 
-Brand palette as color roles. Define them once, as light and dark theme values, and use the roles in screens rather than hex codes:
+The **Sage & Slate** palette (chosen 2026-11-13; see [BRAND.md](BRAND.md)), as color roles. Define them once, as light and dark theme values, and use the roles in screens rather than hex codes:
 
-| Color | Role | Used for |
-|---|---|---|
-| `#1D5B79` | Primary | Main buttons, active tab, links |
-| `#468B97` | Secondary | Chips, the servings stepper, less important actions |
-| `#EF6262` | Tertiary | Delete, errors, the follow-request badge |
-| `#F3AA60` | Quaternary | Highlights only ("Popular", today in the planner). **Never as text on white:** it fails contrast checks |
+| Role | Light | Dark | Used for |
+|---|---|---|---|
+| Primary (slate teal) | `#2F5D62` | `#7FB3B0` | Main buttons, active tab, links, the budget bar. Text on it: white in light mode, `#151B1B` in dark |
+| Secondary (sage) | `#DBE8D6` | `#2C3D2C` | Chips, filters, the servings stepper. Text on it: `#2F4A2C` light, `#C4DCBF` dark |
+| Highlight (wheat) | `#E9C46A` | `#E9C46A` | Highlights only ("Popular", today in the planner), with dark text on it. **Never as text:** too light to read on a light background |
+| Savings (leaf) | `#3F7A4F` | `#93C49D` | Savings, "under budget" |
+| Alert (terracotta) | `#B5523B` | `#E07A5F` | Delete, errors, the follow-request badge |
+| Background | `#F4F5F1` | `#151B1B` | Screen background |
+| Surface | `#FFFFFF` | `#1E2727` | Cards, panels, the tab bar |
+| Text | `#1F2626` | `#E3EAE7` | Body text |
+| Muted text | `#5F6A68` | `#9AAAA6` | Labels, dates, "est." |
+| Divider / track | `#DFE4DF` | `#2E3A3A` | Row dividers, the empty part of the budget bar |
 
-- **Money:** show prices in dollars and cents, consistently formatted. Don't use red for over budget unless it's a real problem: the tone is encouraging, not alarming.
-- The brand colors may change with the new name.
+- **Contrast:** check each text and background pair against WCAG AA (4.5:1 for normal text) when the theme file is written; the values above were chosen to pass, but verify them.
+- **Money:** show prices in dollars and cents, consistently formatted. Over budget doesn't use the alert color: the tone is encouraging, not alarming (see [BRAND.md](BRAND.md)).
 
 - **Dark mode:** support it from the start. It's much harder to add later.
 - **Photos:** plenty of white space; let food photos carry the design.

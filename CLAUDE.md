@@ -63,4 +63,4 @@ Tests are RSpec + FactoryBot (`spec/`); there is no Minitest `test/` directory. 
 
 ## Design
 
-Brand palette: primary `#1D5B79`, secondary `#468B97`, tertiary `#EF6262`, quaternary `#F3AA60`.
+The user-facing app is **Kettle & Coin** (fantasy tavern feel, community "the Hearthguild", voice "the Innkeeper"); its target user, voice, tone and the rule "theme the world, not the controls or the money" are in `docs/BRAND.md`. Brand palette "Sage & Slate": primary `#2F5D62`, secondary `#DBE8D6`, highlight `#E9C46A`, savings `#3F7A4F`, alert `#B5523B`. Full light and dark color roles are in `docs/MOBILE_DESIGN.md`.
