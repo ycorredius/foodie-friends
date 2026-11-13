@@ -2,14 +2,13 @@
 
 The design for the Foodie Friends mobile client: structure, screens, the experience on each, visual design and build order. It's a working draft: update it as decisions change.
 
-**Decided (2026-11-05):**
-- **Native Android first,** in Kotlin with Jetpack Compose, in a separate repo, tested on an Android phone.
-- **A native iOS app in Swift later.** The screens and experience here apply to both; platform conventions differ in places (section 6).
+**Decided:**
+- **React Native with Expo** (2026-11-13, replacing the earlier plan of native Kotlin, then Swift), written in TypeScript, in a separate repo. One codebase serves Android and iOS. Testing starts on an Android phone.
 - **Built by hand** by the project owner. This document describes *what* to build and *why*, not how to code it.
 
 ## 1. App structure
 
-A **bottom navigation bar** (the Android standard, 3–5 tabs) with five tabs:
+**Bottom tabs** (standard on both platforms, 3–5 tabs). There are five:
 
 | Tab | Purpose | API |
 |---|---|---|
@@ -101,7 +100,7 @@ Screens opened on top of the tabs:
 
 ## 3. Visual design
 
-Brand palette mapped to Material 3 color roles:
+Brand palette as color roles. Define them once, as light and dark theme values, and use the roles in screens rather than hex codes:
 
 | Color | Role | Used for |
 |---|---|---|
@@ -127,47 +126,56 @@ Each milestone is something you can use:
 5. **Create and edit recipes:** forms, ingredient lines, photo upload through direct uploads.
 6. **Social:** profiles, follows and requests.
 
-Before milestone 1, work through the official Android Developers material:
-- The **"Android Basics with Compose"** course.
-- The **"Guide to app architecture"**.
+Before milestone 1, work through the official material, in this order:
+- **react.dev "Learn"**: React itself (components, props, state, hooks). React Native is React with mobile building blocks instead of HTML.
+- **React Native docs, "The Basics"**: core components (`View`, `Text`, `Image`, `FlatList`, `Pressable`) and styling.
+- **The Expo tutorial**: creating a project, running it on your phone, and Expo Router.
+- **TypeScript**: just enough to type props and API responses. The TypeScript handbook covers it; learn the rest as you go.
 
-Concepts worth learning first: Compose **state** and recomposition (the screen is redrawn from state), and **ViewModel** with `StateFlow` (where screen state lives so it survives rotation).
+Concepts worth learning first:
+- **The screen is drawn from state.** You don't change the screen directly; you change state, and React redraws. This is the core idea of React (and of Compose and SwiftUI).
+- **Hooks** (`useState`, `useEffect`) and their rules.
+- **Server state vs. screen state.** Data from the API (recipes, plans, lists) is a cached copy of the server's data and is best handled by a data-fetching library (section 5). Screen state (an open sheet, text being typed) stays in components.
 
-## 5. Android building blocks
+## 5. Building blocks
 
-The usual, well-documented choices for each need. All are standard; learn them as each milestone needs them, not all up front.
+The usual, well-documented choices for each need with Expo. Learn them as each milestone needs them, not all up front.
 
 | Need | Building block | First needed |
 |---|---|---|
-| UI | Jetpack Compose with Material 3 (`NavigationBar`, `ModalBottomSheet`, `FloatingActionButton`, chips) | 1 |
-| Screens and back navigation | Navigation Compose | 1 |
-| Screen state | `ViewModel` + `StateFlow`, following the architecture guide (UI layer → data layer / repositories) | 1 |
-| HTTP and JSON | Retrofit or Ktor, with kotlinx.serialization | 1 |
-| Keeping the session token | DataStore, with the token encrypted using a key in the Android Keystore | 1 |
-| Images | Coil | 2 |
-| Infinite scroll | Paging 3 (maps well onto the API's `page` / `next_page` tokens) | 2 |
-| Retrying grocery item changes when offline | WorkManager | 4 |
-| Photo picking | The system Photo Picker | 5 |
-| Dependency injection | Hilt, optional: worth adding once there are several repositories, not on day one | later |
+| Project, tooling, running on the phone | Expo (with a development build once a library needs native code Expo Go doesn't include) | 1 |
+| Screens, tabs and back navigation | Expo Router (file-based routes: the folder structure defines the screens and tabs) | 1 |
+| HTTP and JSON | The built-in `fetch`, wrapped in one small API module that adds the `Authorization: Bearer` header and handles `401` | 1 |
+| Server state: loading, caching, refetching | TanStack Query | 1 |
+| Keeping the session token | `expo-secure-store` (Android Keystore / iOS Keychain underneath). Never AsyncStorage for the token | 1 |
+| Images | `expo-image` (caching, placeholders) | 2 |
+| Infinite scroll | `FlatList` with TanStack Query's infinite queries (they map onto the API's `page` / `next_page` tokens) | 2 |
+| Bottom sheets | A bottom-sheet library such as `@gorhom/bottom-sheet`, or a modal route in Expo Router | 3 |
+| Optimistic updates and retrying grocery changes offline | TanStack Query mutations (optimistic updates, paused while offline and resumed on reconnect) | 4 |
+| Keeping the screen awake on a recipe | `expo-keep-awake` | 2 |
+| Forms | Plain components and state at first; a form library such as React Hook Form if the recipe editor gets unwieldy | 5 |
+| Photo picking | `expo-image-picker` | 5 |
+| Global state | Not needed at first: TanStack Query holds server data, and a React context can hold the signed-in session | later |
+
+**Styling:** React Native styles are plain objects, close to CSS with flexbox. Start with the built-in styles and a small theme file holding the color roles (section 3) for light and dark mode. A component library is optional; adopt one only if building the basics by hand gets slow.
 
 **Running against the local Rails server:**
+- **Real phone (Expo Go or a development build):** the phone and computer must be on the same Wi-Fi. The app uses your computer's network IP, and Rails must be started bound to all interfaces (its binding option) so the phone can reach it.
 - **Android emulator:** reaches your computer's `localhost` as `10.0.2.2`.
-- **Real phone:** needs your computer's network IP. Start Rails bound to all interfaces (its binding option) so the phone can reach it.
-- **Plain HTTP:** Android blocks plain HTTP by default, so allow it for development builds only, via a network security config. Production must use HTTPS.
+- **API address:** keep it in an environment variable (Expo reads `EXPO_PUBLIC_*` variables), not in code, so development and production builds point at different servers.
+- **Plain HTTP:** fine for development; production must use HTTPS.
 
-## 6. Notes for the iOS app later
+## 6. Android and iOS differences
 
-- The screens, flows and states in this document carry over; the platform conventions change:
-  - a tab bar instead of the navigation bar
-  - sheets with "detents" instead of bottom sheets
-  - a "+" in the navigation bar instead of a floating button
-  - swipe actions on list rows
-- SwiftUI is conceptually close to Compose (UI from state), and Swift is close to Kotlin, so the Android app's structure will translate.
-- iOS development needs a Mac with Xcode.
+One codebase, but each platform has conventions worth respecting where they're cheap:
+- **Back:** Android has a system back button or gesture; make sure it closes sheets and dialogs before leaving a screen. iOS uses a back button in the header and swipe-from-edge.
+- **Adding a recipe:** a floating "+" button is the Android convention; on iOS a "+" in the header is more usual. Starting with the floating button on both is fine.
+- **Sheets, tabs and lists:** bottom sheets, tab bars and swipe actions on list rows work on both, and the libraries above adapt their look per platform.
+- **Building for iOS from Linux:** Expo Go on an iPhone works for development. App Store builds go through EAS Build (Expo's cloud build service), so no Mac is required; publishing needs an Apple Developer account.
 
 ## 7. Every screen needs
 
 - A **loading** state (skeleton placeholders rather than spinners where possible).
 - An **empty** state that tells the user what to do next.
 - An **error** state with a retry, and a calm message when offline.
-- Large enough tap targets (at least 48dp on Android) and support for the system font size.
+- Large enough tap targets (at least 48dp on Android, 44pt on iOS) and support for the system font size.
