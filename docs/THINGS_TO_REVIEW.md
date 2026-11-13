@@ -118,3 +118,21 @@ Together these stop accidental overwrites. Every member of a household still has
 - Does ordering replace the household's own prices, or feed them (the price at order time becomes "what you paid")?
 
 **Revisit when:** the MVP has launched and shown that people use costs and shared weeks.
+
+## Condensing the mobile app's tabs
+
+**Decided:** 2026-11-13, while building the first tab shell. Keep the five tabs from [MOBILE_DESIGN.md](MOBILE_DESIGN.md) for now: Home, Explore, Plan, Groceries, Me.
+
+**Why it came up:** Home ("This week") and Plan overlap. Both show this week: Home has the budget, savings and next meals, and Plan has the days and meals with a budget bar on top. A family planner could end up switching between two tabs for the same information. Home and Me don't overlap: Home is what's happening now (daily), Me is your household and settings (occasional).
+
+**Options**
+- **A. Merge Home and Plan** into one tab ("Week" or "This week"): budget and savings at the top, the days and meals below, the Innkeeper's picks when it's empty. Four tabs: Week, Explore, Groceries, Me. Removes the duplication; one fewer screen to build.
+- **B. A, plus move Me to an avatar button** in the corner of the Week tab. Three tabs, each a daily job. Settings are one tap further away; Me may deserve its tab back once profiles and companions arrive after the MVP.
+- **C. Keep five tabs** (the current choice).
+
+**Questions to answer**
+- Once Home and Plan exist as real screens, does switching between them feel like duplication?
+- How often does a family planner open Me? If rarely, B.
+- Shorter tab labels read better on Android ("Week" rather than "This week").
+
+**Revisit when:** Home and Plan have real content (mobile milestones 3 and 5), so the overlap can be judged on real screens. Changing tabs later is a small change: one layout file and the tab table in [MOBILE_DESIGN.md](MOBILE_DESIGN.md).
