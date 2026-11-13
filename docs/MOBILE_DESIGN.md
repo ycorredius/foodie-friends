@@ -1,9 +1,9 @@
 # Mobile app design
 
-The design for the Foodie Friends mobile client: structure, screens, the experience on each, visual design and build order. It's a working draft: update it as decisions change.
+The design for the mobile client: structure, screens, the experience on each, visual design and build order. It's a working draft: update it as decisions change. The app is being refocused on groceries and budgeting (see the mission in [ROADMAP.md](ROADMAP.md)), and it gets a new name, not yet chosen.
 
 **Decided:**
-- **React Native with Expo** (2026-11-13, replacing the earlier plan of native Kotlin, then Swift), written in TypeScript, in a separate repo. One codebase serves Android and iOS. Testing starts on an Android phone.
+- **React Native with Expo** (2026-11-13, replacing the earlier plan of native Kotlin, then Swift), written in TypeScript, in a separate repo. One codebase serves Android and iOS. **The MVP ships on Android only** (2026-11-13); iOS follows after it.
 - **Built by hand** by the project owner. This document describes *what* to build and *why*, not how to code it.
 
 ## 1. App structure
@@ -12,13 +12,13 @@ The design for the Foodie Friends mobile client: structure, screens, the experie
 
 | Tab | Purpose | API |
 |---|---|---|
-| **Home** | Recipes from people you follow | `GET /api/v1/feed` |
-| **Explore** | Search and discover recipes | `GET /api/v1/recipes` with filters |
+| **Home** | This week: budget, cost, savings and what's next | planned meals and costs (Phase 5) |
+| **Explore** | Search and discover recipes; a **Following** view holds the feed | `GET /api/v1/recipes` with filters, `GET /api/v1/feed` |
 | **Plan** | The week's meals | `meal_plans`, `planned_meals`, `plan_templates` |
 | **Groceries** | Shopping lists | `grocery_lists` |
 | **Me** | Your recipes, saved recipes, followers, settings | `me`, `saved_recipes`, `follow_requests` |
 
-**Adding a recipe** is a floating "+" button on Home and Me, not a tab: it's occasional, while browsing and planning are daily.
+**Adding a recipe** is a floating "+" button on Explore and Me, not a tab: it's occasional, while browsing and planning are daily.
 
 Screens opened on top of the tabs:
 - Recipe detail
@@ -32,29 +32,42 @@ Screens opened on top of the tabs:
 ### Sign in / sign up
 
 - Short and friendly. Sign-up asks for first name, last name, email and password only.
-- After sign-up, a **skippable three-question setup**: units (US or metric), the day your week starts, and how many people you cook for. Each one makes the app feel right from the start: amounts appear in the right units, the planner starts on the right day, and planned meals default to the right servings.
+- After sign-up, a **short, skippable setup**: how many people you cook for, your weekly grocery budget, then diets and allergies, the day your week starts, and units (US or metric). Each one makes the app feel right from the start: the budget and savings appear right away, suggestions avoid what you can't eat, and planned meals default to the right servings.
 
-### Home (feed)
+### Home (this week)
 
-- Large recipe cards: photo (or the placeholder), title, author, save button.
-- Infinite scroll: fetch the next page with `next_page` as the user nears the bottom. Pull down to refresh.
-- **Empty state:** a new user follows nobody, so the feed starts empty. Show "Find people to follow" and popular recipes instead of a blank screen.
+The screen that carries the mission: what this week costs, and what it saves.
+- **Budget:** the week's planned cost against the weekly budget, as a bar ("$64 of $90"). Over budget is shown calmly, with a way to fix it ("Swap for cheaper meals").
+- **Savings:** "About $85 less than eating out this week", against the takeout price in settings.
+- **Next meals:** today's and tomorrow's meals, each with its cost per serving.
+- **Empty state:** a new user has no plan. Offer **Suggest my week** as the main button, with "Plan it myself" next to it.
+- Costs from estimates are marked as such ("est."), so users know they're approximate.
 
 ### Explore
 
 - Search bar at the top (`q`).
+- A **Following** view: recipes from people you follow (the feed), with infinite scroll and pull to refresh. A new user follows nobody, so its empty state offers "Find people to follow".
+- **Shared weeks** (Phase 6): a Recipes / Weeks switch. Week cards show the total, the household size it was planned for and cost per serving ("$62 · family of 4 · $2.20 a serving"), filterable by price and household size.
+
+### Shared week (Phase 6)
+
+- The week's meals by day, its total and cost per serving, and who shared it.
+- **Re-costed for you:** the total shown is for *your* household size and *your* prices, with the original next to it ("$48 for your 3 people, $62 as shared").
+- **Copy to my week:** choose the week to copy into. If it already has meals, ask "Replace this week's 6 meals?" as with templates.
+- **Sharing your own week**, from the Plan overflow menu: a preview of exactly what others will see (meals, total, cost per serving; never your budget or spending), a visibility choice, then Share.
 - Filter chips below it:
   - meal type (`meal_type`)
   - difficulty (`difficulty`)
   - time, e.g. "under 30 min" (`max_total_minutes`)
   - tags (`tags`)
-- A Newest / Popular toggle (`sort`). Popular has a This week / Month / Year / All time picker (`period`).
-- Results use the same cards as Home, so the app feels consistent.
+- A Newest / Popular toggle (`sort`). Popular has a This week / Month / Year / All time picker (`period`). Cheapest and a cost filter come with Phase 5.
+- **Recipe cards:** photo (or the placeholder), title, author, cost per serving and a save button. The same card is used everywhere, so the app feels consistent.
+- Infinite scroll: fetch the next page with `next_page` as the user nears the bottom.
 
 ### Recipe detail
 
-- Photo at the top, then title, author and times.
-- **Servings stepper (− 4 +)** that rescales ingredients right away; the API accepts `servings`.
+- Photo at the top, then title, author, times and **cost per serving** (with the total for the chosen servings).
+- **Servings stepper (− 4 +)** that rescales ingredients and cost right away; the API accepts `servings`.
 - Ingredients in the reader's own units (the API converts).
 - Steps numbered, in large text, readable at arm's length while cooking. Consider keeping the screen awake while a recipe is open.
 - Actions:
@@ -69,7 +82,9 @@ Screens opened on top of the tabs:
 
 ### Plan
 
-- **Week view:** the week as a vertical list of days, starting at today, which is highlighted. Each day shows its meals under small slot labels. Swipe or use arrows to change weeks.
+- **Week view:** the week as a vertical list of days, starting at today, which is highlighted. Each day shows its meals under small slot labels, with their costs. Swipe or use arrows to change weeks.
+- **Budget bar** at the top: the week's planned cost against the budget, updated as meals change.
+- **Suggest my week** (Phase 8): choose which days and slots to fill; the app proposes meals within the budget and your preferences. Review the proposal, swap any meal for another suggestion, then accept it.
 - **Editing a meal:** tap it to change servings, move it or remove it. If the API answers `409` (someone else changed it), show "This meal was changed elsewhere. Here's the latest" and reload it. Don't show an error.
 - **Overflow menu:** **Copy last week**, **Apply a template**, **Save week as template**. When the week already has meals, the API answers `409`; turn that into a clear choice: "Replace this week's 6 meals?" with **Cancel** / **Replace** (resend with `replace: true`).
 - **Unavailable recipes:** meals whose recipe is no longer available (`unavailable: true`) appear greyed out with "No longer available" and a remove button.
@@ -83,6 +98,7 @@ Screens opened on top of the tabs:
   - Tap an item to mark it **bought**: struck through and moved to the bottom of its section. A secondary action (swipe or long-press) marks it **"have it"**.
   - A progress line at the top: "12 of 30 left".
   - The recipes that need each item, in small text underneath.
+  - **Prices:** the list's estimated checkout total at the top. After the MVP, an optional "what did you pay?" when checking an item off. Entered prices replace estimates for the household, so costs get more accurate the more the app is used. Keep it optional and quick: never block checking off on it.
 - **Weak signal:** supermarkets often have poor reception. When an item is tapped, update the screen immediately, send the change in the background, and retry if it fails ("optimistic updates"). Never make the user wait for the server to cross something off. This is the biggest single improvement to how the app feels.
 
 ### Me
@@ -91,6 +107,8 @@ Screens opened on top of the tabs:
 - Tabs underneath: **My recipes** and **Saved**.
 - Badge for pending follow requests.
 - **Settings:**
+  - weekly budget and the eating-out price to compare against
+  - diets, allergies and dislikes
   - units
   - week start
   - household name and size
@@ -109,6 +127,9 @@ Brand palette as color roles. Define them once, as light and dark theme values, 
 | `#EF6262` | Tertiary | Delete, errors, the follow-request badge |
 | `#F3AA60` | Quaternary | Highlights only ("Popular", today in the planner). **Never as text on white:** it fails contrast checks |
 
+- **Money:** show prices in dollars and cents, consistently formatted. Don't use red for over budget unless it's a real problem: the tone is encouraging, not alarming.
+- The brand colors may change with the new name.
+
 - **Dark mode:** support it from the start. It's much harder to add later.
 - **Photos:** plenty of white space; let food photos carry the design.
 
@@ -120,11 +141,21 @@ Each milestone is something you can use:
    - Sign in, sign up and sign out, with the session token kept in the phone's secure storage.
    - The five tabs as placeholders.
    - Handling `401` (expired or revoked token) by returning to sign-in.
-2. **Browse:** Home, Explore and Recipe detail, read-only. Teaches lists, pagination, loading states and navigation.
+2. **Browse:** Explore and Recipe detail, read-only. Teaches lists, pagination, loading states and navigation.
 3. **Plan:** the week view and Add to plan.
-4. **Groceries:** preview, saved lists and shopping mode with optimistic updates.
-5. **Create and edit recipes:** forms, ingredient lines, photo upload through direct uploads.
-6. **Social:** profiles, follows and requests.
+4. **Groceries:** preview, saved lists, manual items and shopping mode with optimistic updates.
+5. **Costs and Home:** costs on cards, recipes, the plan and lists; the budget bar; the Home screen. Built as the API's Phase 5 lands.
+6. **Shared weeks:** browse, copy and share your own, with the API's Phase 6.
+7. **Release:** the app name and icon, pointing at the production server, and an Android release (the API's Phase 7).
+
+**Milestones 1–7 are the MVP** (see [ROADMAP.md](ROADMAP.md)). After it, in roughly this order:
+
+8. **Suggestions:** preferences and Suggest my week, with the API's Phase 8.
+9. **Social:** profiles, follows and requests, and the Following view.
+10. **Create and edit recipes:** forms, ingredient lines, photo upload through direct uploads.
+11. **iOS release.**
+
+Until milestone 5, Home can show the week's planned meals without costs. Until milestone 8, its empty state offers starter weeks to copy instead of Suggest my week.
 
 Before milestone 1, work through the official material, in this order:
 - **react.dev "Learn"**: React itself (components, props, state, hooks). React Native is React with mobile building blocks instead of HTML.
