@@ -37,4 +37,27 @@ RSpec.describe "db/seeds.rb" do
     Rails.application.load_seed
     expect(User.exists?(email_address: "demo@example.com")).to be(false)
   end
+
+  context "in development" do
+    before { allow(Rails).to receive(:env).and_return(ActiveSupport::EnvironmentInquirer.new("development")) }
+
+    let(:demo) { User.find_by!(email_address: "demo@example.com") }
+    let(:this_week) { demo.week_containing(Date.current) }
+
+    it "plans this week for the demo account, leaving the third day empty" do
+      Rails.application.load_seed
+
+      meals = demo.household.planned_meals.where(date: this_week)
+      expect(meals.count).to eq(9)
+      expect(meals.pluck(:date)).not_to include(this_week.first + 2)
+      expect(meals.map(&:recipe)).to all(have_attributes(user: kitchen))
+    end
+
+    it "doesn't touch a week that already has meals" do
+      Rails.application.load_seed
+      demo.household.planned_meals.where(date: this_week).where.not(meal_slot: :dinner).destroy_all
+
+      expect { Rails.application.load_seed }.not_to change { demo.household.planned_meals.count }
+    end
+  end
 end
