@@ -136,3 +136,21 @@ Together these stop accidental overwrites. Every member of a household still has
 - Shorter tab labels read better on Android ("Week" rather than "This week").
 
 **Revisit when:** Home and Plan have real content (mobile milestones 3 and 5), so the overlap can be judged on real screens. Changing tabs later is a small change: one layout file and the tab table in [MOBILE_DESIGN.md](MOBILE_DESIGN.md).
+
+## Several recipes in one meal slot (mains and sides)
+
+**Decided:** 2026-11-16, while building "Add a meal" in the mobile app. Keep the rule from Phase 3: a meal slot can hold several recipes (each recipe once), so Tuesday dinner can be Sheet Pan Chicken plus Garlic Green Beans. When you pick a slot that already has meals, the add screen says so ("Tuesday dinner already has Black Bean Chili. This will be added alongside it.") before you confirm.
+
+**Why it came up:** while testing, it looked wrong that a day could have "two dinners". Several recipes in one slot is right for a main plus a side or a dessert, but usually a mistake for two mains, and the app can't tell which. The notice makes it visible without blocking sides.
+
+**Options considered**
+- **A. Several per slot, with the notice** (chosen): no backend change, sides and desserts still work.
+- **B. One recipe per slot, except snacks:** simple and strict, but rules out main plus side unless the side is folded into the main recipe.
+- **C. A "side" concept:** each slot has one main, plus any number of sides or desserts attached to it. Clearer for the user ("Dinner: Sheet Pan Chicken, with Garlic Green Beans") and lets the app warn about a second main. Needs a role on `PlannedMeal` (main / side), probably using the recipe's `meal_type` (side, dessert) as the default, and changes to the add screen and the Plan day view.
+
+**Open ideas**
+- C looks like the better long-term answer; the user leans towards it.
+- With C: should adding a second main replace the first, ask, or be allowed with a warning? Can a side exist without a main?
+- Should grocery lists, costs and shared priced weeks treat sides differently (for example "cost per dinner" including its sides)?
+
+**Revisit when:** after the MVP, or sooner if testers find "two dinners" confusing. Also before costs per meal (Phase 5), since a meal's cost may need to include its sides.
