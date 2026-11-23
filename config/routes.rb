@@ -33,7 +33,7 @@ Rails.application.routes.draw do
       resources :plan_templates, only: %i[index show create destroy]
       resources :grocery_lists, only: %i[index show create destroy] do
         get :preview, on: :collection
-        resources :items, controller: :grocery_list_items, only: :update
+        resources :items, controller: :grocery_list_items, only: %i[create update]
       end
       resources :direct_uploads, only: :create
     end

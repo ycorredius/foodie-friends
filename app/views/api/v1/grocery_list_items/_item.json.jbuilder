@@ -6,6 +6,7 @@ if item.persisted?
 end
 json.ingredient_id item.ingredient_id
 json.name item.name
+json.manual item.manual
 json.amounts item.amounts do |amount|
   amount = Unit.display(amount, system: Current.user.unit_system)
   json.quantity amount.quantity.to_f

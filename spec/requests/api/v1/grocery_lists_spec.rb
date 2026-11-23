@@ -151,6 +151,70 @@ RSpec.describe "API saved grocery lists", type: :request do
     end
   end
 
+  describe "POST /api/v1/grocery_lists/:id/items" do
+    let(:list) do
+      plan(recipe_with(["milk", 1, "cup"]))
+      create_list
+    end
+
+    def add_item(headers: self.headers, **item)
+      post api_v1_grocery_list_items_path(list), params: {item: item}, headers: headers, as: :json
+    end
+
+    it "adds a manual item, shown in the reader's unit system" do
+      add_item(name: "Bananas", quantity: 2, unit: "lb", category: "produce")
+
+      expect(response).to have_http_status(:created)
+      expect(response.parsed_body).to include("name" => "Bananas", "manual" => true, "status" => "to_buy",
+        "category" => "produce", "ingredient_id" => nil, "recipes" => [], "amounts" => [{"quantity" => 2.0, "unit" => "lb"}])
+
+      user.update!(unit_system: :metric)
+      get api_v1_grocery_list_path(list), headers: headers
+      expect(item("Bananas")).to include("manual" => true, "amounts" => [{"quantity" => 907.0, "unit" => "g"}])
+    end
+
+    it "adds a separate line when the plan already needs the ingredient" do
+      add_item(name: "milk", quantity: 1, unit: "gallon")
+
+      expect(response.parsed_body).to include("ingredient_id" => Ingredient.find_by!(name: "milk").id, "category" => "produce")
+      get api_v1_grocery_list_path(list), headers: headers
+      expect(items.select { |i| i["name"] == "milk" }.map { |i| [i["manual"], i["amounts"]] }).to contain_exactly(
+        [false, [{"quantity" => 1.0, "unit" => "cup"}]], [true, [{"quantity" => 16.0, "unit" => "cup"}]]
+      )
+    end
+
+    it "accepts just a name" do
+      add_item(name: "paper towels")
+      expect(response).to have_http_status(:created)
+      expect(response.parsed_body).to include("category" => "other", "amounts" => [])
+    end
+
+    it "rejects invalid items with errors by field" do
+      add_item(name: "", quantity: 2, unit: "handful", category: "garden")
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body["errors"].keys).to contain_exactly("name", "unit", "category")
+      expect(list.items.where(manual: true)).to be_empty
+    end
+
+    it "only sets the fields it allows" do
+      add_item(name: "rice", status: "bought", recipe_ids: [1], manual: false)
+      expect(response.parsed_body).to include("status" => "to_buy", "manual" => true, "recipes" => [])
+      expect(list.items.find_by!(name: "rice").recipe_ids).to eq([])
+    end
+
+    it "requires an item" do
+      post api_v1_grocery_list_items_path(list), params: {}, headers: headers, as: :json
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it "only adds to the user's own household's lists" do
+      add_item(name: "rice", headers: {Authorization: "Bearer #{create(:session, user: create(:user)).token}"})
+      expect(response).to have_http_status(:not_found)
+      expect(list.items.where(name: "rice")).to be_empty
+    end
+  end
+
   describe "PATCH /api/v1/grocery_lists/:id/items/:item_id" do
     let(:list) do
       plan(recipe_with(["onion", 1, "each"]))
