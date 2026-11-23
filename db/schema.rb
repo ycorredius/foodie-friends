@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_23_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -65,7 +65,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_150000) do
     t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["grocery_list_id", "ingredient_id"], name: "index_grocery_list_items_on_grocery_list_id_and_ingredient_id", unique: true, where: "(ingredient_id IS NOT NULL)"
+    t.boolean "manual", default: false, null: false
+    t.index ["grocery_list_id", "ingredient_id"], name: "index_grocery_list_items_on_list_and_generated_ingredient", unique: true, where: "((ingredient_id IS NOT NULL) AND (NOT manual))"
     t.index ["grocery_list_id"], name: "index_grocery_list_items_on_grocery_list_id"
     t.index ["ingredient_id"], name: "index_grocery_list_items_on_ingredient_id"
   end
