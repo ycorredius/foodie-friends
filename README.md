@@ -4,7 +4,7 @@ Share recipes with friends. Rails 8.1 web app with a JSON API for the mobile cli
 
 ## Requirements
 
-- Ruby 4.0.9 (see `.ruby-version`)
+- Ruby 4.0.10 (see `.ruby-version`)
 - PostgreSQL
 
 ## Setup

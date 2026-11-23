@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Stack
 
-Rails 8.1 on Ruby 4.0.9 (`.ruby-version`), PostgreSQL, Hotwire (Turbo + Stimulus via importmap), Tailwind via `tailwindcss-rails`, Propshaft. Authentication is Rails' built-in generator (`has_secure_password`), not Devise. No hosting provider has been chosen yet.
+Rails 8.1 on Ruby 4.0.10 (`.ruby-version`), PostgreSQL, Hotwire (Turbo + Stimulus via importmap), Tailwind via `tailwindcss-rails`, Propshaft. Authentication is Rails' built-in generator (`has_secure_password`), not Devise. No hosting provider has been chosen yet.
 
 This app is a rewrite of an older Devise-based app that lives in `main`'s history before the rewrite commit. Features (recipes, ingredients, friends/invitations, comments, photos) are being ported from it incrementally — look there for the original behavior, but don't copy its patterns wholesale.
 
