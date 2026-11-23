@@ -136,3 +136,32 @@ Together these stop accidental overwrites. Every member of a household still has
 - Shorter tab labels read better on Android ("Week" rather than "This week").
 
 **Revisit when:** Home and Plan have real content (mobile milestones 3 and 5), so the overlap can be judged on real screens. Changing tabs later is a small change: one layout file and the tab table in [MOBILE_DESIGN.md](MOBILE_DESIGN.md).
+
+## Subscriptions and pricing
+
+**Decided:** 2026-11-23: after the MVP. Nothing is built and no prices are set. The app is already a hosted, multi-tenant service; charging a recurring subscription is what would make it a SaaS product. The MVP must first prove that people use costs and shared weeks, unless we decide to test willingness to pay before launch (that would redefine the MVP; see the questions below).
+
+**Idea so far: one subscription per household**
+- Charge the **household**, not each user: plans, templates and grocery lists already belong to it, so one subscription covers the whole family. That's also an advantage over single-user apps once household sharing (Phase 10) exists.
+- **Free** builds the weekly habit: recipes, follows, a weekly plan, grocery lists, copying shared weeks.
+- **Paid** is what saves money, so the price is easy to justify ("it pays for itself"): for example budget-based suggestions (Phase 8), a household's own prices and community prices (Phase 9), several members in a household (Phase 10), plan templates.
+- A **trial** of the paid tier for new households, e.g. 14 days, started when the default household is created.
+- When a subscription lapses, **keep the data and lock the paid features**, the same spirit as deactivation: nothing is lost if they come back.
+
+**How it could be built**
+- A `Subscription` on `Household`: status (`trialing`, `active`, `past_due`, `canceled`), plan, `current_period_end`, and the payment provider's ids.
+- One entitlement check, e.g. `Household#entitled_to?(:budget_suggestions)`, used by controllers and views. The API answers with a clear error code the app can turn into an upgrade screen. This could be built early with every household entitled, so gating a feature later is a one-line change.
+- **Payments** (check current terms; these change):
+  - Mobile: Google Play and the App Store require their own billing for digital subscriptions, and take 15–30%. A service like **RevenueCat** wraps both and sends the backend one webhook.
+  - Web (optional): **Stripe** Checkout and its billing portal, with lower fees.
+  - The backend learns about payments only from signed **webhooks**; the app never decides on its own that someone has paid.
+- Running a paid service also needs what Phase 7 already lists (hosting, email delivery), plus cloud photo storage, error tracking and backups, Terms of Service and a privacy policy, sales tax handling, and a business entity to receive payouts.
+
+**Questions to answer**
+- **Mission conflict:** the app promises to save money. Does putting the money-saving features behind a paywall feel fair, or should costs and budgets stay free and the paid tier add convenience (suggestions, templates, sharing)?
+- Price: a typical consumer range is about $3–$10 a month. Monthly, yearly, or both? Is there a family or multi-household price (e.g. for the household managers in Phase 10)?
+- Subscriptions, ordering commission (see "Ordering from grocery stores" above), or both? Commission has its own mission conflict.
+- Mobile billing only at first (Android is the first release), or the web as well to avoid store fees?
+- Should we test willingness to pay before or at the MVP launch, e.g. a "coming soon" paid tier, a waitlist or a pre-order? Doing that would redefine the MVP.
+
+**Revisit when:** the MVP has launched and shown that people use costs and shared weeks, or earlier if we decide to test willingness to pay at launch.
